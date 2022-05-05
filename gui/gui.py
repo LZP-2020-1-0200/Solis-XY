@@ -5,20 +5,20 @@ from gui.buttons import get_available_com_ports
 def step0_layout():
     step_0_layout = [[sg.T("COM Port: "), sg.Combo([*get_available_com_ports()], key="-COM_PORT_CHOOSER-", readonly=True),
                       sg.B("Refresh", key="-REFRESHCOMPORTS-"), sg.B("Connect", key="-CONNECT-")]]
-    step0 = sg.Frame(layout=step_0_layout, title="Step 0 - COM Port chooser", expand_x=1)
+    step0 = sg.Frame(layout=step_0_layout, title="Step 0 - COM Port chooser")
     return step0
 
 
 def step1_layout():
     step1_layout = [
         [sg.T('Left btm corner', s=(14, 1)), sg.T('X:'), sg.I("-9999", key="-S1CORNER1_X-", s=(10, 2)), sg.T("Y:"),
-         sg.I("-9001", key="-S1CORNER1_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD1")],
+         sg.I("-9001", key="-S1CORNER1_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD1"),sg.B("Go Here",key="-S1GOTOCOORD1-")],
         [sg.T('Left top corner', s=(14, 1)), sg.T('X:'), sg.I("-10001", key="-S1CORNER2_X-", s=(10, 2)), sg.T("Y:"),
-         sg.I("8999", key="-S1CORNER2_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD2")],
+         sg.I("8999", key="-S1CORNER2_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD2"),sg.B("Go Here",key="-S1GOTOCOORD2-")],
         [sg.T('Right top corner', s=(14, 1)), sg.T('X:'), sg.I("9999", key="-S1CORNER3_X-", s=(10, 2)), sg.T("Y:"),
-         sg.I("9001", key="-S1CORNER3_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD3")],
+         sg.I("9001", key="-S1CORNER3_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD3"),sg.B("Go Here",key="-S1GOTOCOORD3-")],
         [sg.T('Right btm corner', s=(14, 1)), sg.T('X:'), sg.I("10001", key="-S1CORNER4_X-", s=(10, 2)), sg.T("Y:"),
-         sg.I("-8999", key="-S1CORNER4_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD4")],
+         sg.I("-8999", key="-S1CORNER4_Y-", s=(10, 2)), sg.B("Read", key="-S1READ_COORD4"),sg.B("Go Here",key="-S1GOTOCOORD4-")],
         [sg.B("Submit and Save", key="-STEP1SUBMIT-"), sg.B('Load', key="-STEP1LOAD-")]]
 
     step1 = sg.Frame(layout=step1_layout, title="Step 1 - Initial position")

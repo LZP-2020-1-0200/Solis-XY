@@ -20,19 +20,16 @@ class Sample:
         self.right_btm_corner = corners[3]
         self.right_top_corner = corners[2]
 
-        self.left_edge_length = (self.left_top_corner.subtract(self.left_btm_corner)).y
-        self.right_edge_length = (self.right_top_corner.subtract(self.right_btm_corner)).y
-        self.top_edge_length = (self.right_top_corner.subtract(self.left_top_corner)).x
-        self.btm_edge_length = (self.right_btm_corner.subtract(self.left_btm_corner)).x
-
-        self.top_edge_length = self.right_top_corner.x - self.left_top_corner.x
-        self.btm_edge_length = self.right_btm_corner.x - self.left_btm_corner.x
+        self.left_edge_length = (self.left_top_corner.subtract(self.left_btm_corner)).y_nm
+        self.right_edge_length = (self.right_top_corner.subtract(self.right_btm_corner)).y_nm
+        self.top_edge_length = (self.right_top_corner.subtract(self.left_top_corner)).x_nm
+        self.btm_edge_length = (self.right_btm_corner.subtract(self.left_btm_corner)).x_nm
 
         self.y_center_left = self.left_btm_corner.add(self.left_top_corner).divide(2)
         self.y_center_right = self.right_btm_corner.add(self.right_top_corner).divide(2)
 
         self.center = self.left_btm_corner.add(self.right_top_corner).divide(2)
-        print("x,y center: ", self.y_center_right, self.y_center_left)
+        # print("x,y center: ", self.y_center_right, self.y_center_left)
 
         self.rotation_angle = self.get_rotation()
 
@@ -52,6 +49,16 @@ class Sample:
             f"{self.left_top_corner.x},{self.left_top_corner.y}---------------{self.right_top_corner.x},"
             f"{self.right_top_corner.y}\n{self.left_btm_corner.x},{self.left_btm_corner.y}---------------"
             f"{self.right_btm_corner.x},{self.right_btm_corner.y}")
+        
+    def all_x(self):
+        return [self.left_btm_corner.x_nm,self.left_top_corner.x_nm,
+                self.right_top_corner.x_nm,self.right_btm_corner.x_nm,
+                self.left_btm_corner.x_nm]
+        
+    def all_y(self):
+            return [self.left_btm_corner.y_nm,self.left_top_corner.y_nm,
+                    self.right_top_corner.y_nm,self.right_btm_corner.y_nm,
+                    self.left_btm_corner.y_nm]
         # self.y_center[0] + i * x_spacing, p1[1] +  i * y_spacing]
 
 # print(intermediates([1, 2], [10, 6.5], nb_points=8))

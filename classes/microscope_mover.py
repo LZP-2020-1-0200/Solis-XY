@@ -10,10 +10,8 @@ class MicroscopeMover:
 
     def __init__(self, com_port):
         #todo Add normal pop-up
-        try:
-            self.serial = serial.Serial(port=com_port, baudrate=BAUDRATE)
-        except:
-            print("Could not connect to serial port")
+        self.serial = serial.Serial(port=com_port, baudrate=BAUDRATE)
+
 
     def get_coordinates(self) -> list[int, int]:
         self.serial.write("P \r".encode())

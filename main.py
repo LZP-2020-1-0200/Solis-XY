@@ -1,72 +1,118 @@
+from classes.coordinate import Coordinate
+from classes.sample import Sample
+from classes.microscope_mover import MicroscopeMover
+from gui.gui import GUI
+from gui.plot_gui import PlotGUI
+from classes.scanner import Scanner
+import gui.buttons as buttons
+from matplotlib.patches import Rectangle as Rectangle_
 import PySimpleGUI as sg
-from matplotlib.ticker import NullFormatter  # useful for `logit` scale
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import PySimpleGUI as sg
-import matplotlib
-from matplotlib.patches import Rectangle
 
-def draw_figure(canvas, figure):
-    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
-    figure_canvas_agg.draw()
-    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
-    return figure_canvas_agg
+if __name__ == "__main__":
+    window = GUI().window
+    plot_gui = PlotGUI()
+    plot_window = plot_gui.window
 
-def convertStringToNum(args: list[float]) -> list[float]:
-    return [float(arg) for arg in args]
+    while True:
+        window, event, values = sg.read_all_windows()
+        if event == sg.WIN_CLOSED:  # if user closes window or clicks cancel
+            break
 
+        if event == "-REFRESHCOMPORTS-":
+            window["-COM_PORT_CHOOSER-"].Update(values=buttons.get_available_com_ports())
 
-def numericCheck(list: list[str]):
-    try:
-        for string in list:
-            float(string)
-    except ValueError:
-        return False
-    return True
+        if event == "-CONNECT-":
+            mover = MicroscopeMover(buttons.get_com_port_from_desc(values["-COM_PORT_CHOOSER-"]))
 
-fig = matplotlib.figure.Figure(figsize=(3, 2), dpi=75)
-ax1 = fig.add_subplot(111)
+        if "-S1READ_" in event:
+            # todo add error pop-up
+            try:
+                new_values = mover.get_coordinates()
+                buttons.update_coordinate_inputs(window[f"-S1CORNER{event[-1]}_X-"], window[f"-S1CORNER{event[-1]}_Y-"],
+                                                 new_values)
+            except NameError:
+                print("Microscope is not connected!")
 
+        if event == "-STEP1SUBMIT-":
+            # todo add error handling
+            initial_sample = Sample(*[Coordinate(int(values[f"-S1CORNER{i}_X-"]), int(values[f"-S1CORNER{i}_Y-"])) for i in range(1, 5)])
+            plot_gui.ax.plot(*initial_sample.center.coord_to_tuple())
 
-sg.theme('Reddit')
+            plot_gui.ax.set_xlim(-15000, 15000)
+            plot_gui.ax.set_ylim(-15000, 15000)
 
-layout = [
-    [sg.T('1. Corner'), sg.I("", key="CORNER1", s=(10, 2)), sg.T('3. Corner'), sg.I("", key="CORNER3", s=(10, 2))],
-    [sg.T('2. Corner'), sg.I("", key="CORNER2", s=(10, 2)), sg.T('4. Corner'), sg.I("", key="CORNER4", s=(10, 2))],
-    [sg.B("Submit", key="STEP1SUBMIT"), sg.B('Load', key="STEP1LOAD")]]
+            plot_gui.ax.add_patch(Rectangle_((initial_sample.left_btm_corner.x, initial_sample.left_btm_corner.y),
+                                             initial_sample.btm_edge_length,
+                                             initial_sample.left_edge_length,
+                                             initial_sample.rotation_angle, alpha=0.50))
 
+            plot_gui.fig_agg.draw()
+            # plot_gui.random_point.setdata(first_time_sample.left_btm_corner.xfirst_time_sample.y_center_right.y)
+            # plot_gui.fig_agg.draw()
+            # todo add saving
 
+        if event == "-STEP1LOAD-":
+            # todo add loading
+            pass
 
-step1 = sg.Frame(layout=layout, title="Step 1 - Initial position")
+        if "-S2READ_" in event:
+            # todo add error pop-up
+            try:
+                new_values = mover.get_coordinates()
+                buttons.update_coordinate_inputs(window[f"-S2CORNER{event[-1]}_X-"], window[f"-S2CORNER{event[-1]}_Y-"],
+                                                 new_values)
+            except NameError:
+                print("Microscope is not connected!")
 
+        if event == "-STEP2SUBMIT-":
+            # todo add error handling
+            second_time_sample = Sample(
+                *[Coordinate(int(values[f"-S2CORNER{i}_X-"]), int(values[f"-S2CORNER{i}_Y-"])) for i in range(1, 5)])
+            plot_gui.ax.add_patch(
+                Rectangle_((second_time_sample.left_btm_corner.x, second_time_sample.left_btm_corner.y),
+                           second_time_sample.btm_edge_length,
+                           second_time_sample.left_edge_length,
+                           #  first_time_sample.btm_edge_length,
+                           #      first_time_sample.left_edge_length,
+                           second_time_sample.rotation_angle, alpha=0.7, color='orange'))
+            print(second_time_sample.rotation_angle)
 
-layout = [
-    [sg.T('1. Corner'), sg.I("", key="CORNER1", s=(10, 2)), sg.T('3. Corner'), sg.I("", key="CORNER3", s=(10, 2))],
-    [sg.T('2. Corner'), sg.I("", key="CORNER2", s=(10, 2)), sg.T('4. Corner'), sg.I("", key="CORNER4", s=(10, 2))],
-    [sg.B("Submit", key="STEP1SUBMIT"), sg.B('Load', key="STEP1LOAD")]]
+            # plot_gui.ax.plot([second_time_sample.y_center_left.x,second_time_sample.y_center_right.x],
+            #                   [second_time_sample.y_center_left.y,second_time_sample.y_center_right.y])
 
-step2 = sg.Frame(layout=layout, title="Step 2 - New position")
+            # plot_gui.ax.plot([-9,9],[-4,4])
 
-window = sg.Window('Test', [[step1,  sg.Canvas(key='-CANVAS-')], [step2]], finalize=True, element_justification='center',
-                   font='Helvetica 14')
+            # plot_gui.ax.plot([-5,13],[-13,-5])
+            # plot_gui.ax.plot([13,5],[-5,13])
 
-while 1:
-    event, values = window.read()
-    if event == sg.WIN_CLOSED:  # if user closes window or clicks cancel
-        break
+            plot_gui.fig_agg.draw()
+        if event == "-NUMBER_OF_SCANS-":
+            # todo error handling
+            try:
+                scanning_point_count = int(values["-NUMBER_OF_SCANS-"])
+            except ValueError:
+                scanning_point_count = 1
 
-    if event == "STEP1SUBMIT":
-        initial_values = [values[f"CORNER{str(i)}"] for i in range(1, 5)]
-        if not numericCheck(initial_values):
-            continue
-        
-        ax1.plot([], [])
-        ax1.add_patch(Rectangle(0,0))
-        fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+        if event == "-SUMBMISCANNO-":
+            scanner = Scanner(second_time_sample.get_scanning_points_from_center(scanning_point_count))
 
+            plot_gui.ax.scatter(scanner.list_of_x_coord(), scanner.list_of_y_coord())
 
+            plot_gui.fig_agg.draw()
+            scanner.next_scan()
+            # mover.set_coordinates(scanner.current_point_coord[1].x,scanner.current_point_coord[1].y)
+            window["-SCANNO-"].update(str(scanner.current_point_no + 1))
+            window["-CURRENTXY-"].update(str(scanner.current_point_coord))
 
+        if event == "-PREVIOUS-":
+            scanner.previous_scan()
+            mover.set_coordinates(scanner.current_point_coord[1].x, scanner.current_point_coord[1].y)
+            plot_gui.fig_agg.draw()
+            window["-SCANNO-"].update(str(scanner.current_point_no + 1))
+            window["-CURRENTXY-"].update(str(scanner.current_point_coord))
 
-
-
+        if event == "-NEXT-":
+            scanner.next_scan()
+            mover.set_coordinates(scanner.current_point_coord[1].x, scanner.current_point_coord[1].y)
+            window["-SCANNO-"].update(str(scanner.current_point_no + 1))
+            window["-CURRENTXY-"].update(str(scanner.current_point_coord))

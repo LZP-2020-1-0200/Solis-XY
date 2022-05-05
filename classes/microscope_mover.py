@@ -9,7 +9,11 @@ BAUDRATE = 9600
 class MicroscopeMover:
 
     def __init__(self, com_port):
-        self.serial = serial.Serial(port=com_port, baudrate=BAUDRATE)
+        #todo Add normal pop-up
+        try:
+            self.serial = serial.Serial(port=com_port, baudrate=BAUDRATE)
+        except:
+            print("Could not connect to serial port")
 
     def get_coordinates(self) -> list[int, int]:
         self.serial.write("P \r".encode())
@@ -28,12 +32,12 @@ class MicroscopeMover:
         self.serial.read(2)
 
 
-mover = MicroscopeMover("COM6")
-print(mover.get_coordinates())
-mover.set_coordinates(25000, 25000)
-print(mover.get_coordinates())
+# mover = MicroscopeMover("COM6")
+# print(mover.get_coordinates())
+# mover.set_coordinates(25000, 25000)
+# print(mover.get_coordinates())
 # ser.write(b"YD,0\r")
-# print(ser.read(2))
+# print(ser.read(2))s
 # reset_coordinates(ser)
 # time.sleep(1)
 # print(get_coordinates(ser))

@@ -1,3 +1,5 @@
+import csv
+
 from classes.coordinate import Coordinate
 
 class Scanner:
@@ -27,3 +29,21 @@ class Scanner:
 
     def list_of_y_coord(self):
         return [y.y_nm for y in self.all_scanner_points]
+
+    def save_coordinate(self, path):
+        print(path)
+        with open(path, "w", newline='') as file:
+            csvReader = csv.writer(file, delimiter=",")
+            for point in self.all_scanner_points:
+                csvReader.writerow(list(point.tuple))
+
+    def load_coordinates(self, path):
+        with open(path) as file2:
+            csvReader = csv.reader(file2, delimiter=",")
+            for i, row in enumerate(csvReader):
+                self.all_scanner_points.append(Coordinate(float(row[0]),float(row[1])))
+                # print(row)
+                # buttons.update_coordinate_inputs(window[f"-S1CORNER{i + 1}_X-"],
+                #                                  window[f"-S1CORNER{i + 1}_Y-"],
+                #                                  [row[0], row[1]])
+

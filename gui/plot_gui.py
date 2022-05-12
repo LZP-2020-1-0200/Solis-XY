@@ -3,6 +3,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib import pyplot as plt
 from matplotlib.backend_bases import MouseButton
 from classes.coordinate import Coordinate
+import sys
 
 sg.theme('Reddit')
 
@@ -59,15 +60,19 @@ class PlotGUI():
         self.ax.axis('equal')
 
     def onclick(self, event):
+        # sys.stdout.flush()
         # all_x, all_y = [], []
+        
         if event.button is MouseButton.LEFT:
-            points_of_interest.append(Coordinate(int(event.xdata), int(event.ydata)))
+            pass
+            # points_of_interest.append(Coordinate(int(event.xdata), int(event.ydata)))
 
         if event.button is MouseButton.RIGHT:
-            if len(points_of_interest):
-                points_of_interest.pop()
+            pass
+            # if len(points_of_interest):
+                # points_of_interest.pop()
 
-        all_x = [x.x for x in points_of_interest]
-        all_y = [y.y for y in points_of_interest]
-        self.initial_points.set_data(all_x, all_y)
-        self.fig_agg.draw()
+        # all_x = [x.x for x in points_of_interest]
+        # all_y = [y.y for y in points_of_interest]
+        # self.initial_points.set_data(all_x, all_y)
+        # self.fig_agg.draw()

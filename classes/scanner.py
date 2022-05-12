@@ -42,8 +42,9 @@ class Scanner:
             csvReader = csv.reader(file2, delimiter=",")
             for i, row in enumerate(csvReader):
                 self.all_scanner_points.append(Coordinate(float(row[0]),float(row[1])))
+            
+            self.all_point_count = len(self.all_scanner_points)
                 # print(row)
                 # buttons.update_coordinate_inputs(window[f"-S1CORNER{i + 1}_X-"],
                 #                                  window[f"-S1CORNER{i + 1}_Y-"],
                 #                                  [row[0], row[1]])
-

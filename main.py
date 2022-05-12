@@ -19,7 +19,7 @@ if __name__ == "__main__":
     plot_gui = PlotGUI()
     plot_window = plot_gui.window
     axes, fig_agg, initial, final = plot_gui.ax, plot_gui.fig_agg, plot_gui.initial, plot_gui.final
-    scatter_points, cur_point = plot_gui.points, plot_gui.current_points
+    scatter_points, cur_point, initial_points = plot_gui.points, plot_gui.current_points, plot_gui.initial_points
 
     while True:
         window, event, values = sg.read_all_windows()
@@ -48,19 +48,21 @@ if __name__ == "__main__":
 
             print(f"-S{event[2]}CORNER{event[-2]}_X-")
             try:
-                mover.set_coordinates(window[f"-S{event[2]}CORNER{event[-2]}_X-"], window[f"-S{event[2]}CORNE"
-                                                                                          f"R{event[-2]}_Y-"])
+                mover.set_coordinates(int(values[f"-S{event[2]}CORNER{event[-2]}_X-"]), int(values[f"-S{event[2]}CORNE"
+                                                                                          f"R{event[-2]}_Y-"]))
             except NameError:
                 print("Microscope is not connected!")
 
         if event == "-STEP1SUBMIT-":
             # todo add error handling
             save_path = sg.popup_get_file("", no_window=1, default_extension=".txt", save_as=1)
-            if save_path:
-                initial_sample.save_corners(save_path)
+
 
             initial_sample = Sample(
                 *[Coordinate(int(values[f"-S1CORNER{i}_X-"]), int(values[f"-S1CORNER{i}_Y-"])) for i in range(1, 5)])
+            
+            if save_path:
+                initial_sample.save_corners(save_path)
 
             axes.set_xlim(initial_sample.left_btm_corner.x - (initial_sample.left_btm_corner.x / 4),
                           initial_sample.right_top_corner.x + (initial_sample.left_btm_corner.x / 4))
@@ -115,20 +117,31 @@ if __name__ == "__main__":
             except:
                 num_of_scans = 0
             scatter_points.set_data([], [])
+            cur_point.set_data([],[])
             fig_agg.draw()
             # todo error handling
             # a = len(points_of_interest)
             all_trajectory = []
             i = 0
             while i < len(points_of_interest) - 1:
-                all_trajectory.append(
-                    get_scanning_points_from_points(points_of_interest[i], points_of_interest[i + 1], num_of_scans))
+                if i == len(points_of_interest) - 2:
+                    between_points  = get_scanning_points_from_points(points_of_interest[i], points_of_interest[i + 1], num_of_scans)
+                else:
+                    between_points  = get_scanning_points_from_points(points_of_interest[i], points_of_interest[i + 1], num_of_scans)[:-1]
+                
+                # between_points = between_points[:-1]
+                
+                for point in between_points:
+                    all_trajectory.append(point)
                 i += 1
-
-            all_trajectory = np.array(all_trajectory).flatten()
+            # print(all_trajectory)
+            # all_trajectory = np.array(all_trajectory).flatten()
 
             # for x in all_trajectory:
             #     print(x)
+            
+   
+                    
 
             xx = [x.x for x in all_trajectory]
             yy = [y.y for y in all_trajectory]
@@ -175,8 +188,26 @@ if __name__ == "__main__":
                 points_load_path = None
             xx = [x.x + nobide.x for x in scanner.all_scanner_points]
             yy = [y.y + nobide.y for y in scanner.all_scanner_points]
+            scanner.next_scan()
+            mover.set_coordinates(*scanner.current_point_coord.tuple)
+            cur_point.set_data(*scanner.current_point_coord.tuple)
+            window["-SCANNO-"].update(str(scanner.current_point_no + 1))
+            window["-CURRENTXY-"].update(str(scanner.current_point_coord))
             scatter_points.set_data(xx, yy)
             fig_agg.draw()
+            
+        if event == "-ADDPOINTOFINT-":
+            point = mover.get_coordinates()
+            points_of_interest.append(Coordinate(*point))
+            
+            initial_points.set_data([x.x for x in points_of_interest], [y.y for y in points_of_interest])
+            fig_agg.draw()
+            
+        if event =="-REMOVELAST-":
+            if len(points_of_interest):
+                points_of_interest.pop()
+                initial_points.set_data([x.x for x in points_of_interest], [y.y for y in points_of_interest])
+                fig_agg.draw()
 
         # plot gui events
         if event == "-SHOW_FIRST-":

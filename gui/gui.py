@@ -55,7 +55,7 @@ def step3_layout():
                     [sg.T("Current scan no.:"), sg.T("", key="-SCANNO-"),
                      sg.T("Current coordinates:", key="-CURRENTXY-")],
                     [sg.B("Previous", key="-PREVIOUS-"), sg.B("Next", key="-NEXT-")],
-                    [sg.B("Save points", key="-SAVESCANPOINTS-"),sg.B("Load points", key="-LOADSCANPOINTS-")]]
+                    [sg.B("Save points", key="-SAVESCANPOINTS-"),sg.B("Load points", key="-LOADSCANPOINTS-"),sg.B("Add point",key="-ADDPOINTOFINT-"),sg.B("Remove last point", key="-REMOVELAST-")]]
     step3 = sg.Frame(layout=step3_layout, title="Step 3 - Scanning", expand_x=True)
     return step3
 

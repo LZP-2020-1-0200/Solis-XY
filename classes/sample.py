@@ -22,7 +22,7 @@ def get_scanning_points_from_points(pnt1, pnt2, nb_points: int):
     spacing = pnt2.subtract(pnt1).divide(nb_points + 1)
     points_without_end_and_beggining = [pnt1.add(spacing.multiply(i)) for i in range(1, nb_points + 1)]
     points_without_end_and_beggining.insert(0,pnt1)
-    points_without_end_and_beggining.insert(-1, pnt2)
+    points_without_end_and_beggining.append(pnt2)
     return points_without_end_and_beggining
 
 

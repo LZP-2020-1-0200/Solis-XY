@@ -7,6 +7,9 @@ def get_available_com_ports():
 
 
 def get_com_port_from_desc(com_port_desc):
+    if not com_port_desc:
+        return 
+    
     ports = serial.tools.list_ports.comports()
     for port, desc, _ in ports:
         if com_port_desc in desc:

@@ -58,6 +58,7 @@ class MicroscopeMover:
                     a = self.serial.read(2)
                     # print(a)
                     break
+            time.sleep(1)
         else:
             logger.error("Microscope is not connected!")
 

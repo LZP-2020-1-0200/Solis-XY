@@ -1,3 +1,6 @@
+import sys
+sys.path.append("C:/Users/optika/PycharmProjects/Solis-XY")
+
 import coloredlogs
 import logging
 import PySimpleGUI as sg
@@ -5,8 +8,7 @@ import time
 
 from classes.coordinate import Coordinate
 from classes.microscope_mover import MicroscopeMover
-from classes.sample import get_scanning_points_from_points
-from classes.scanner import Scanner
+from classes.scanner import Scanner, get_scanning_points_from_points
 from classes.solis import Automatization
 from gui.new_gui import AutomatizationGUI
 import gui.buttons as buttons
@@ -29,7 +31,6 @@ def disable(window : sg.Element, key : str):
 def start_scanning(window : sg.Element, scanner: Scanner, mover: MicroscopeMover, solis: Automatization):
     global paused, stopped
     logger.info("Started scanning sequence")
-    solis.connect_to_solis("Process Explorer - *")
     for i, point in enumerate(scanner.all_scanner_points):
         window["-SCANNO-"].update(scanner.current_point_no + 1)
         window["-CURRENTXY-"].update(scanner.current_point_coord)
@@ -41,13 +42,15 @@ def start_scanning(window : sg.Element, scanner: Scanner, mover: MicroscopeMover
             if stopped:
                 return
             solis.capture_and_save(f"Point nr. {i+1}. {point.tuple}_{j+1}", i == 0 and j == 0)
+    logger.info("Successfully ended scanning sequence")
 
 
 def main():
+    solis = Automatization("Andor SOLIS for Spectroscopy: *")
+    # solis.connect_to_solis("Andor SOLIS for Spectroscopy: *")
     gui = AutomatizationGUI()
     mover = MicroscopeMover()
     scanner = Scanner()
-    solis = Automatization()
     window = gui.window
     
     
@@ -125,7 +128,8 @@ def main():
                 points_save_path = None
                 
         if event == "-LOADSCANPOINTS-":
-            points_load_path = sg.popup_get_file("", no_window=1, default_extension=".txt")
+            points_load_path = sg.popup_get_file(
+                "", no_window=1, default_extension=".txt", file_types=(("TXT files", "*.txt"),))
             if points_load_path and scanner.load_coordinates(points_load_path):
                 points_load_path = None
                 disable(window, "-NUMBER_OF_SCANS-")
@@ -145,7 +149,7 @@ def main():
                 logger.error("Cannot start scanning: Microscope is not connected")
                 continue
             
-            window.perform_long_operation(lambda : start_scanning(scanner,mover,solis), "-SCANEND-")
+            window.perform_long_operation(lambda : start_scanning(window,scanner,mover,solis), "-SCANEND-")
             
         if len(event) == 1 and ord(event) in P_LETTER:
             paused = True if not paused else False

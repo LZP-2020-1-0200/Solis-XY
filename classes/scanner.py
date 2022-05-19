@@ -10,6 +10,13 @@ logger = logging.getLogger(__name__)
 coloredlogs.install(level='INFO')
 coloredlogs.install(level='INFO', logger=logger)
 
+
+def get_scanning_points_from_points(pnt1: Coordinate, pnt2: Coordinate, nb_points: int):
+    spacing = (pnt2 - pnt1) / (nb_points + 1)
+    all_points = [pnt1 + spacing * i for i in range(1, nb_points + 1)]
+    all_points.append(pnt2)
+    return all_points
+
 class Scanner:
 
     def __init__(self):

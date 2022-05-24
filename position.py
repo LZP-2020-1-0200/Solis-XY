@@ -54,9 +54,6 @@ def main():
             
             btn.update_coordinate_inputs(input_x, input_y, point)
             logger.info(f"Read point X: {point.x} Y: {point.y}")
-            
-            point_key = f's{event[2]}point{event[-2]}'
-            points[point_key] = point
 
                 
         if "GOTOCORD" in event:
@@ -74,9 +71,23 @@ def main():
             
             
         if event == "-STEP1SUBMIT-":
+            error_in_validation = False
             
-            if 's1point1' not in points or 's1point2' not in points:
-                logger.error("One of the points is missing")
+            for i in range(1,3):
+                x = values[f"-S1CORNER{i}_X-"]
+                y = values[f"-S1CORNER{i}_Y-"]
+
+                x_int = str_to_int(x)
+                y_int = str_to_int(y)
+
+                if not x_int or not y_int:
+                    error_in_validation = True
+                    break
+
+                point_key = f's1point{i}'
+                points[point_key] = Coordinate(x_int, y_int)
+                
+            if error_in_validation:
                 continue
                 
             save_path = sg.popup_get_file("", no_window=1, default_extension=".txt", save_as=1)
@@ -132,6 +143,7 @@ def main():
                 logger.error("One of the new points is missing")
                 continue
             
+            # TODO add some kind of error handling
             with open(load_path[:-4] + "recalculated.txt", 'w', newline='') as file:
                 writer = csv.writer(file, delimiter=',')
                 writer.writerow(points['s2point1'].tuple)

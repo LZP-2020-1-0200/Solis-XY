@@ -109,7 +109,18 @@ def main():
                     
                     btn.update_coordinate_inputs(input_x, input_y, coord)
             logger.info("Successfully loaded initial points")
-                
+            
+            disable_element(window, '-S1CORNER1_X-')
+            disable_element(window, '-S1CORNER1_Y-')
+            disable_element(window, '-S1CORNER2_X-')
+            disable_element(window, '-S1CORNER2_Y-')
+            disable_element(window, '-S1READ_COORD1-')
+            disable_element(window, '-S1GOTOCORD1-')
+            disable_element(window, '-S1READ_COORD2-')
+            disable_element(window, '-S1GOTOCORD2-')
+            disable_element(window, '-STEP1SUBMIT-')
+            disable_element(window, '-STEP1LOAD-')
+            
                 
         if event == "-STEP2SUBMIT-":
             

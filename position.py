@@ -43,7 +43,6 @@ def main():
                 
                 
         if "READ_COORD" in event:
-            points.pop(f's{event[2]}point{event[-2]}', None)
             point = mover.get_coordinates()
 
             if not point:
@@ -72,8 +71,8 @@ def main():
             
         if event == "-STEP1SUBMIT-":
             error_in_validation = False
-            
-            for i in range(1,3):
+
+            for i in range(1, 3):
                 x = values[f"-S1CORNER{i}_X-"]
                 y = values[f"-S1CORNER{i}_Y-"]
 
@@ -134,13 +133,23 @@ def main():
             
                 
         if event == "-STEP2SUBMIT-":
-            
-            if 's1point1' not in points or 's1point2' not in points:
-                logger.error("One of the initial points is missing")
-                continue
-            
-            if 's2point1' not in points or 's2point2' not in points:
-                logger.error("One of the new points is missing")
+            error_in_validation = False
+
+            for i in range(1, 3):
+                x = values[f"-S2CORNER{i}_X-"]
+                y = values[f"-S2CORNER{i}_Y-"]
+
+                x_int = str_to_int(x)
+                y_int = str_to_int(y)
+
+                if not x_int or not y_int:
+                    error_in_validation = True
+                    break
+
+                point_key = f's2point{i}'
+                points[point_key] = Coordinate(x_int, y_int)
+                
+            if error_in_validation:
                 continue
             
             # TODO add some kind of error handling
@@ -188,8 +197,8 @@ def main():
                     coord = Coordinate(int(row[0]),int(row[1]))
                     points[f's2point{i+1}'] = coord
                     btn.update_coordinate_inputs(window[f"-S2CORNER{i + 1}_X-"],
-                                                     window[f"-S2CORNER{i + 1}_Y-"],
-                                                     coord)
+                                                 window[f"-S2CORNER{i + 1}_Y-"],
+                                                 coord)
                 logger.info("Successfully loaded initial points")
          
         if event == "-SAMEVALUES-":

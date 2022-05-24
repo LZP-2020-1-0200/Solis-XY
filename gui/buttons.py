@@ -1,21 +1,23 @@
 import serial.tools.list_ports
+from classes.coordinate import Coordinate
+import PySimpleGUI as sg
 
 
-def get_available_com_ports():
+def get_available_com_ports() -> list[str]:
     ports = serial.tools.list_ports.comports()
     return [desc for (_, desc, _) in sorted(ports)]
 
 
-def get_com_port_from_desc(com_port_desc):
+def get_com_port_from_desc(com_port_desc : str):
     if not com_port_desc:
-        return 
-    
+        return
+
     ports = serial.tools.list_ports.comports()
     for port, desc, _ in ports:
         if com_port_desc in desc:
             return port
 
 
-def update_coordinate_inputs(input1, input2, values: list):
-    input1.update(values[0])
-    input2.update(values[1])
+def update_coordinate_inputs(input1: sg.Element, input2: sg.Element, coord: Coordinate):
+    input1.update(coord.x)
+    input2.update(coord.y)

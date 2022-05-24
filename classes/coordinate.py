@@ -1,4 +1,5 @@
 from __future__ import annotations
+from math import atan2, sin, cos, radians, pi
 import coloredlogs
 import logging
 
@@ -11,10 +12,81 @@ UNIT_TO_NANOMETER = 40
 NM_TO_QM = 1000
 
 
+def get_rotation(btm_point: Coordinate, top_point: Coordinate, edge: str = "left") -> float:
+    """Gets rotation angle in degrees
+
+    Args:
+        pnt1 (Coordinate): Bottom corner of line
+        pnt2 (Coordinate): Top corner of line
+        edge {'left', 'top', 'right', 'bottom'}, optional: Side of edge. Defaults to "left".
+
+    Returns:
+        float: Rotation in degrees
+    """
+    if edge not in ['left', 'right', 'bottom', 'top']:
+        raise TypeError(f'Not possible edge value "{edge}" ')
+    offset = 0
+    match edge:
+        case 'top':
+            offset = 90
+        case 'right':
+            offset = 180
+        case 'bottom':
+            offset = 90
+
+    corner_length = top_point - btm_point
+    rotation = atan2(*corner_length.tuple)
+    return rotation * 180 / pi * -1 + offset
+
+
+def rotate_point(point: Coordinate, angle: int | float) -> Coordinate:
+    rad_angle = radians(angle)
+    new_x = point.x * cos(rad_angle) - point.y * sin(rad_angle)
+    new_y = point.x * sin(rad_angle) + point.y * cos(rad_angle)
+    return Coordinate(new_x, new_y)
+
+
+def get_translation(initial_point: Coordinate, new_point: Coordinate, angle: int | float = 0) -> Coordinate:
+    rad_angle = radians(angle)
+    x_transl = -initial_point.x * \
+        cos(rad_angle) + initial_point.y * sin(rad_angle) + new_point.x
+    y_transl = -initial_point.x * \
+        sin(rad_angle) - initial_point.y * cos(rad_angle) + new_point.y
+    return Coordinate(x_transl, y_transl)
+
+
+def get_new_point(old_point: Coordinate, old_corner: Coordinate, new_corner_btm: Coordinate, new_corner_top: Coordinate, btm=True) -> Coordinate:
+    """Generate new point based on rotation and translation
+
+    Args:
+        old_point (Coordinate): Old point of interest
+        old_corner (Coordinate): Initial corner point
+        new_corner_btm (Coordinate): New corner bottom point
+        new_corner_top (Coordinate): New corner top point
+        btm (bool, optional): True if new corner is line's bottom point else False. Defaults to bottom.
+
+    Returns:
+        Coordinate: New point based on rotation and translation
+    """
+    # Get rotation from new corners
+    rotation = get_rotation(new_corner_btm, new_corner_top)
+    # Generate rotated point from rotation and old point
+    old_point_rotated = rotate_point(old_point, rotation)
+    # Calculate translation using old corner point and new corner point
+    if btm:
+        translation = get_translation(old_corner, new_corner_btm, rotation)
+    else:
+        translation = get_translation(old_corner, new_corner_top, rotation)
+    # Return rotated and/or translated point
+    return old_point_rotated + translation
+
+
 class Coordinate:
 
     def __init__(self, x: int | float, y: int | float):
-        x_, y_ = round(x), round(y)
+
+        x_ = round(x)
+        y_ = round(y)
 
         self.x = x_
         self.y = y_
@@ -24,8 +96,6 @@ class Coordinate:
 
         self.tuple = self.x, self.y
         self.tuple_qm = self.x_qm, self.y_qm
-        
-        # logger.info(f"Created coordinate with X: {self.x} Y: {self.y}")
 
     def __str__(self):
         return f"X: {self.x} Y: {self.y}"
@@ -41,60 +111,23 @@ class Coordinate:
 
     def __truediv__(self, divider: int | float):
         return Coordinate(self.x / divider, self.y / divider)
-    
+
     def __eq__(self, other: Coordinate):
         return self.x == other.x and self.y == other.y
 
-    # def coord_to_tuple(self):
-    #     return self.x, self.y
+    def __abs__(self):
+        return Coordinate(abs(self.x), abs(self.y))
 
-    # def add(self, coord_to_add: Coordinate) -> Coordinate:
-    #     return Coordinate(self.x + coord_to_add.x, self.y + coord_to_add.y)
-
-    # def subtract(self, coordinate: Coordinate) -> Coordinate:
-    #     return Coordinate(self.x - coordinate.x, self.y - coordinate.y)
-
-    # def divide(self, divider: int | float, ) -> Coordinate:
-    #     return Coordinate(round(self.x / divider), round(self.y / divider))
-
-    # def multiply(self, multiplier: int | float) -> Coordinate:
-    #     return Coordinate(self.x * multiplier, self.y * multiplier)
-
-
-# def coordinate_unit_to_qm(coordinate: int) -> int:
-#     """Converts coordinate unit to micrometer unit
-
-#     Args:
-#         coordinate (int): Raw data from controlller with unknown units
-
-#     Returns:
-#         int: Micrometer
-#     """
-#     return round(coordinate * UNIT_TO_NANOMETER / NM_TO_QM)
-
-
-# def coordinate_nm_to_unit(coordinate: int | float) -> float:
-#     return coordinate / UNIT_TO_NANOMETER * NM_TO_QM
-
-
-# def coordinate_to_list(*coordinates):
-#     return [(cord.x, cord.y) for cord in coordinates]
-
-
-# def find_min_max(corners):
-#     x_min = min(corners, key=itemgetter(0))[0]
-#     y_min = min(corners, key=itemgetter(1))[1]
-
-#     x_max = max(corners, key=itemgetter(0))[0]
-#     y_max = max(corners, key=itemgetter(1))[1]
-
-#     return x_min, y_min, x_max, y_max
+    def __lt__(self, other: Coordinate):
+        return (self.y) < (other.y)
 
 
 # test
 if __name__ == "__main__":
-    coord1 = Coordinate(100, 253)
-    cord2 = Coordinate(221, 1321)
 
-    cord3 = cord2 / 3
-    # print(coord1, cord2, cord3)
+    btm = Coordinate(1.74, 2.23)
+    top = Coordinate(1.13, 7.2)
+
+    points = [btm, top]
+
+    print(max(points))

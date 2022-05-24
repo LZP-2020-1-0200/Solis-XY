@@ -9,7 +9,6 @@ import sys
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='INFO')
-coloredlogs.install(level='INFO', logger=logger)
 
 ALT = '%'
 F5 = "{F5}"
@@ -21,34 +20,26 @@ SPACE = "{VK_SPACE}"
 F = "F"
 A = "A"
 
-# todo redo this class with using toolbar if Solis supports
+# TODO redo this class with using toolbar if Solis supports
 class Automatization:
-    
-    def __init__(self, title_regex : str) -> None:
+
+    def __init__(self, title_regex: str) -> None:
         try:
             self.app: Application = Application().connect(title_re=title_regex)
             self.main_dlg: controls.hwndwrapper.DialogWrapper = self.app.window(title_re=title_regex)
+            self.success = True
             logger.info("Successfully attached to Andor Solis")
         except ElementNotFoundError:
             logger.error("Andor Solis is not detected ! Please open it first and restart program.")
-            sys.exit(-1)
-    # def connect_to_solis(self,title_regex : str):
-    #     try:
-    #         self.app: Application = Application().connect(title_re=title_regex)
-    #         self.main_dlg: controls.hwndwrapper.DialogWrapper = self.app.window(title_re=title_regex)
-    #         logger.info("Successfully attached to Andor Solis")
-    #     except ElementNotFoundError:
-    #         logger.error("Andor Solis is not detected ! Please open it first and restart program.")
-    #         sys.exit(-1)
-        
+            self.success = False
+
     def take_spectra(self):
         self.main_dlg.set_focus()
         keyboard.send_keys(F5)
         logger.info("Taking spectra...")
         sleep(12)
         logger.info("Spectra taken")
-        
-    # todo change filename format to 00001, 00010, 001000 e.t.c.
+
     def save_spectra(self, filename: str, first_time: bool):
         self.main_dlg.set_focus()
         keyboard.send_keys(f"{CTRL}{S}{filename.replace(' ',SPACE)}")
@@ -58,21 +49,18 @@ class Automatization:
         else:
             keyboard.send_keys(ENTER)
         logger.info(f"Spectra nr.{filename.split('.')[1]}. saved")
-        
+
     def close_saved_spectra(self):
         self.main_dlg.set_focus()
         keyboard.send_keys(f"{ALT}{F}{DOWN}{ENTER}")
-        
+
     def capture_and_save(self, filename: str, first_time: bool = True):
         self.take_spectra()
         self.save_spectra(filename, first_time)
         self.close_saved_spectra()
-        
+
 
 if __name__ == "__main__":
     auto = Automatization()
     auto.connect_to_solis("Process Explorer - *")
     auto.save_spectra("vladislavs2", first_time=False)
-    
-    
-    

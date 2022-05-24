@@ -1,6 +1,3 @@
-import sys
-sys.path.append("C:/Users/optika/PycharmProjects/Solis-XY")
-
 import coloredlogs
 import logging
 import PySimpleGUI as sg
@@ -10,8 +7,11 @@ from classes.coordinate import Coordinate
 from classes.microscope_mover import MicroscopeMover
 from classes.scanner import Scanner, get_scanning_points_from_points
 from classes.solis import Automatization
-from gui.new_gui import AutomatizationGUI
-import gui.buttons as buttons
+from gui.scanner_gui import AutomatizationGUI, disable_element
+import gui.buttons as btn
+from gui.helpers import str_to_int
+
+PADDING = 7
 
 P_LETTER = ord("p"), ord("P")
 S_LETTER = ord("s"), ord("S")
@@ -19,44 +19,57 @@ S_LETTER = ord("s"), ord("S")
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='INFO')
-coloredlogs.install(level='INFO', logger=logger)
 
 paused = False
 stopped = False
 
 
-def disable(window : sg.Element, key : str):
-    window[key].update(disabled = True)
 
-def start_scanning(window : sg.Element, scanner: Scanner, mover: MicroscopeMover, solis: Automatization):
+    
+def construct_number_with_padding(number : int):
+    number_as_str = str(number)
+    digit_count = len(number_as_str)
+    return f"{'0'*(PADDING - digit_count)}{number_as_str}"
+    
+
+def start_scanning(window : sg.Element, scanner: Scanner, mover: MicroscopeMover, solis: Automatization, scans_per_point : int):
     global paused, stopped
     logger.info("Started scanning sequence")
     for i, point in enumerate(scanner.all_scanner_points):
+        point_nr = construct_number_with_padding(i+1)
         window["-SCANNO-"].update(scanner.current_point_no + 1)
         window["-CURRENTXY-"].update(scanner.current_point_coord)
         scanner.next_scan()
         mover.set_coordinates(point)
-        for j in range(3):
+        for j in range(scans_per_point):
+            
             while paused:
                 time.sleep(0.5)
             if stopped:
                 return
-            solis.capture_and_save(f"Point nr. {i+1}. {point.tuple}_{j+1}", i == 0 and j == 0)
+            
+            if scans_per_point == 1:
+                solis.capture_and_save(f"Point nr. {point_nr}. {point.tuple}", i == 0 and j == 0)
+            else:
+                solis.capture_and_save(f"Point nr. {point_nr}. {point.tuple}_{j+1}", i == 0 and j == 0)
+            
+            
     logger.info("Successfully ended scanning sequence")
 
 
 def main():
+    global paused, stopped
+    
     solis = Automatization("Andor SOLIS for Spectroscopy: *")
-    # solis.connect_to_solis("Andor SOLIS for Spectroscopy: *")
+    if not solis.success:
+        return
+    
     gui = AutomatizationGUI()
     mover = MicroscopeMover()
     scanner = Scanner()
     window = gui.window
     
-    
     points_of_interest = []
-    
-    global paused, stopped
     
     while 1:
         event, values = window.read()
@@ -64,32 +77,41 @@ def main():
             break
         
         if event == "-REFRESHCOMPORTS-":
-            window["-COM_PORT_CHOOSER-"].Update(values=buttons.get_available_com_ports())
+            window["-COM_PORT_CHOOSER-"].Update(values=btn.get_available_com_ports())
                 
         if event == "-CONNECT-":
-            if mover.connect(buttons.get_com_port_from_desc(values["-COM_PORT_CHOOSER-"])):
-                disable(window, "-COM_PORT_CHOOSER-")
-                disable(window, "-REFRESHCOMPORTS-")
-                disable(window, "-CONNECT-")
+            if mover.connect(btn.get_com_port_from_desc(values["-COM_PORT_CHOOSER-"])):
+                disable_element(window, "-COM_PORT_CHOOSER-")
+                disable_element(window, "-REFRESHCOMPORTS-")
+                disable_element(window, "-CONNECT-")
                 
         if event == "-SUMBMISCANNO-":
-            try:
-                numb_of_scans = int(values["-NUMBER_OF_SCANS-"])
-            except ValueError:
-                logger.error(
-                    f"Could not not convert \"{values['-NUMBER_OF_SCANS-']}\" to Integer")
+            
+            numb_of_scans = str_to_int(values["-NUMBER_OF_SCANS-"])
+            num_of_scans_per_point = str_to_int(values["-NUMOFSCANS-"])
+            
+            if not numb_of_scans:
                 continue
+            
 
             if len(points_of_interest) < 2:
-                logger.error(
-                    f"At least 2 points must be chosen! Current point count: {len(points_of_interest)}")
+                logger.error(f"At least 2 points must be chosen! Current point count: {len(points_of_interest)}")
                 continue
+            
+            
+            if not num_of_scans_per_point:
+                continue
+            
+            
+            if numb_of_scans <= 0 or num_of_scans_per_point <= 0:
+                logger.error("Negative or zero number of scans")
+                continue
+
             
             i = 0
             all_between_points: list[Coordinate] = []
             while i < len(points_of_interest) - 1:
-                between_points = get_scanning_points_from_points(
-                    points_of_interest[i], points_of_interest[i + 1], numb_of_scans)
+                between_points = get_scanning_points_from_points(points_of_interest[i], points_of_interest[i + 1], numb_of_scans, num_of_scans_per_point)
                 for point in between_points:
                     all_between_points.append(point)
                 i += 1
@@ -98,8 +120,9 @@ def main():
             logger.info("Points submitted successfully")
             stopped, paused = False, False
 
-            disable(window, "-NUMBER_OF_SCANS-")
-            disable(window, "-SUMBMISCANNO-")
+            disable_element(window, "-NUMBER_OF_SCANS-")
+            disable_element(window, "-SUMBMISCANNO-")
+            disable_element(window, "-NUMOFSCANS-")
                 
         
         if event == "-ADDPOINTOFINT-":
@@ -128,16 +151,15 @@ def main():
                 points_save_path = None
                 
         if event == "-LOADSCANPOINTS-":
-            points_load_path = sg.popup_get_file(
-                "", no_window=1, default_extension=".txt", file_types=(("TXT files", "*.txt"),))
+            points_load_path = sg.popup_get_file("", no_window=1, default_extension=".txt", file_types=(("TXT files", "*.txt"),))
             if points_load_path and scanner.load_coordinates(points_load_path):
                 points_load_path = None
-                disable(window, "-NUMBER_OF_SCANS-")
-                disable(window, "-SUMBMISCANNO-")
-                disable(window, "-SAVESCANPOINTS-")
-                disable(window, "-LOADSCANPOINTS-")
-                disable(window, "-ADDPOINTOFINT-")
-                disable(window, "-REMOVELAST-")
+                disable_element(window, "-NUMBER_OF_SCANS-")
+                disable_element(window, "-SUMBMISCANNO-")
+                disable_element(window, "-SAVESCANPOINTS-")
+                disable_element(window, "-LOADSCANPOINTS-")
+                disable_element(window, "-ADDPOINTOFINT-")
+                disable_element(window, "-REMOVELAST-")
 
 
         if event == "-STARTSCAN-":

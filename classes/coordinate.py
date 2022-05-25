@@ -2,6 +2,7 @@ from __future__ import annotations
 from math import atan2, sin, cos, radians, pi
 import coloredlogs
 import logging
+import csv
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
@@ -79,6 +80,27 @@ def get_new_point(
         translation = get_translation(old_corner, new_corner_top, rotation)
     # Return rotated and/or translated point
     return old_point_rotated + translation
+
+
+def read_all_points_from_file(path_to_file: str):
+    with open(path_to_file, "r") as file:
+        list_of_coordinates: list[Coordinate] = []
+        csv_reader = csv.reader(file, delimiter=",")
+        for i, row in enumerate(csv_reader):
+            if len(row) > 2:
+                logger.error(f"Wrong file, more than 2 columns detected ! ({len(row)}) ")
+                return []
+            try:
+                x = int(row[0])
+                y = int(row[1])
+            except ValueError as e:
+                logger.error(f"Could not convert{e.args[0].split(':')[-1]} at line: {i+1} to Integer")
+                return []
+
+            coordinate = Coordinate(x, y)
+            list_of_coordinates.append(coordinate)
+        logger.info(f"Successfully loaded all points")
+        return list_of_coordinates
 
 
 class Coordinate:

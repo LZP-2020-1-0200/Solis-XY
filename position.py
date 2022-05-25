@@ -3,7 +3,7 @@ import logging
 import PySimpleGUI as sg
 import csv
 
-from classes.coordinate import Coordinate, get_new_point
+from classes.coordinate import Coordinate, get_new_point, read_all_points_from_file
 from classes.microscope_mover import MicroscopeMover
 from classes.scanner import Scanner
 from gui.position_gui import PositionGUI
@@ -101,18 +101,17 @@ def main():
             if not load_path:
                 continue
 
-            with open(load_path) as file:
-                csv_reader = csv.reader(file, delimiter=",")
-                for i, row in enumerate(csv_reader):
-                    # TODO error handling
-                    coord = Coordinate(int(row[0]), int(row[1]))
-                    points[f"s1point{i+1}"] = coord
+            coordinates = read_all_points_from_file(load_path)
 
-                    input_x = window[f"-S1CORNER{i + 1}_X-"]
-                    input_y = window[f"-S1CORNER{i + 1}_Y-"]
+            if len(coordinates) > 2:
+                logger.error("Wrong file, too much points to unpack")
+                continue
 
-                    btn.update_coordinate_inputs(input_x, input_y, coord)
-            logger.info("Successfully loaded initial points")
+            for i, coord in enumerate(coordinates):
+                points[f"s1point{i+1}"] = coord
+                input_x = window[f"-S1CORNER{i + 1}_X-"]
+                input_y = window[f"-S1CORNER{i + 1}_Y-"]
+                btn.update_coordinate_inputs(input_x, input_y, coord)
 
             disable_element(window, "-S1CORNER1_X-")
             disable_element(window, "-S1CORNER1_Y-")
@@ -160,7 +159,7 @@ def main():
             scanner.load_coordinates(points_load_path)
             new_points = []
 
-            # TODO check and delete print statements
+            # TODO test this and delete print statements
             old_corner = min(points["s1point1"], points["s1point2"])
             print("old corner: ", old_corner)
             new_corner_btm = min(points["s2point1"], points["s2point2"])

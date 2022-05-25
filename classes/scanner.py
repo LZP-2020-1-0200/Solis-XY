@@ -2,7 +2,7 @@ import coloredlogs
 import logging
 import csv
 
-from classes.coordinate import Coordinate
+from classes.coordinate import Coordinate, read_all_points_from_file
 
 
 logger = logging.getLogger(__name__)
@@ -54,19 +54,11 @@ class Scanner:
 
     def load_coordinates(self, path):
         self.all_scanner_points = []
-        with open(path) as file2:
-            csv_reader = csv.reader(file2, delimiter=",")
-            for i, row in enumerate(csv_reader):
-                if len(row) > 2:
-                    logger.error(f"Wrong file, more than 2 columns detected ! ({len(row)}) ")
-                    return False
-                try:
-                    x = int(row[0])
-                    y = int(row[1])
-                except ValueError as e:
-                    logger.error(f"Could not convert{e.args[0].split(':')[-1]} at line: {i+1} to Integer")
-                    return False
-                self.all_scanner_points.append(Coordinate(x, y))
-            self.all_point_count = len(self.all_scanner_points)
-            logger.info(f"Successfully loaded points")
-            return True
+        coordinates = read_all_points_from_file(path)
+
+        if not coordinates:
+            return False
+
+        self.all_scanner_points = coordinates
+        self.all_point_count = len(coordinates)
+        return True

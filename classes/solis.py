@@ -4,13 +4,12 @@ from pywinauto import ElementNotFoundError
 from pywinauto.application import Application, controls
 import pywinauto.keyboard as keyboard
 from time import sleep
-import sys
 
 
 logger = logging.getLogger(__name__)
-coloredlogs.install(level='INFO')
+coloredlogs.install(level="INFO")
 
-ALT = '%'
+ALT = "%"
 F5 = "{F5}"
 CTRL = "^"
 S = "S"
@@ -22,7 +21,6 @@ A = "A"
 
 # TODO redo this class with using toolbar if Solis supports
 class Automatization:
-
     def __init__(self, title_regex: str) -> None:
         try:
             self.app: Application = Application().connect(title_re=title_regex)
@@ -30,7 +28,7 @@ class Automatization:
             self.success = True
             logger.info("Successfully attached to Andor Solis")
         except ElementNotFoundError:
-            logger.error("Andor Solis is not detected ! Please open it first and restart program.")
+            logger.error("Andor Solis is not detected ! Please open it first.")
             self.success = False
 
     def take_spectra(self):

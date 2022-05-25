@@ -4,8 +4,8 @@ import coloredlogs
 import logging
 
 logger = logging.getLogger(__name__)
-coloredlogs.install(level='INFO')
-coloredlogs.install(level='INFO', logger=logger)
+coloredlogs.install(level="INFO")
+coloredlogs.install(level="INFO", logger=logger)
 
 
 UNIT_TO_NANOMETER = 40
@@ -23,15 +23,15 @@ def get_rotation(btm_point: Coordinate, top_point: Coordinate, edge: str = "left
     Returns:
         float: Rotation in degrees
     """
-    if edge not in ['left', 'right', 'bottom', 'top']:
+    if edge not in ["left", "right", "bottom", "top"]:
         raise TypeError(f'Not possible edge value "{edge}" ')
     offset = 0
     match edge:
-        case 'top':
+        case "top":
             offset = 90
-        case 'right':
+        case "right":
             offset = 180
-        case 'bottom':
+        case "bottom":
             offset = 90
 
     corner_length = top_point - btm_point
@@ -48,14 +48,14 @@ def rotate_point(point: Coordinate, angle: int | float) -> Coordinate:
 
 def get_translation(initial_point: Coordinate, new_point: Coordinate, angle: int | float = 0) -> Coordinate:
     rad_angle = radians(angle)
-    x_transl = -initial_point.x * \
-        cos(rad_angle) + initial_point.y * sin(rad_angle) + new_point.x
-    y_transl = -initial_point.x * \
-        sin(rad_angle) - initial_point.y * cos(rad_angle) + new_point.y
+    x_transl = -initial_point.x * cos(rad_angle) + initial_point.y * sin(rad_angle) + new_point.x
+    y_transl = -initial_point.x * sin(rad_angle) - initial_point.y * cos(rad_angle) + new_point.y
     return Coordinate(x_transl, y_transl)
 
 
-def get_new_point(old_point: Coordinate, old_corner: Coordinate, new_corner_btm: Coordinate, new_corner_top: Coordinate, btm=True) -> Coordinate:
+def get_new_point(
+    old_point: Coordinate, old_corner: Coordinate, new_corner_btm: Coordinate, new_corner_top: Coordinate, btm=True
+) -> Coordinate:
     """Generate new point based on rotation and translation
 
     Args:
@@ -82,7 +82,6 @@ def get_new_point(old_point: Coordinate, old_corner: Coordinate, new_corner_btm:
 
 
 class Coordinate:
-
     def __init__(self, x: int | float, y: int | float):
 
         x_ = round(x)

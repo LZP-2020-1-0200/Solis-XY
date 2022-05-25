@@ -2,10 +2,6 @@ import PySimpleGUI as sg
 from gui.buttons import get_available_com_ports
 
 
-def disable_element(window: sg.Element, key: str):
-    window[key].update(disabled=True)
-
-
 def step0_layout():
     step_0_layout = [
         [sg.T("COM Port: "), sg.Combo([*get_available_com_ports()], key="-COM_PORT_CHOOSER-", readonly=True),

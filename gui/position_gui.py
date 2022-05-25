@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from gui.scanner_gui import step0_layout, disable_element
+from gui.scanner_gui import step0_layout
 
 
 def step1_layout():

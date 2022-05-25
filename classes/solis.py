@@ -1,7 +1,7 @@
 import coloredlogs
 import logging
 from pywinauto import ElementNotFoundError
-from pywinauto.application import Application, controls
+from pywinauto.application import Application
 import pywinauto.keyboard as keyboard
 from time import sleep
 
@@ -24,7 +24,7 @@ class Automatization:
     def __init__(self, title_regex: str) -> None:
         try:
             self.app: Application = Application().connect(title_re=title_regex)
-            self.main_dlg: controls.hwndwrapper.DialogWrapper = self.app.window(title_re=title_regex)
+            self.main_dlg = self.app.window(title_re=title_regex)
             self.success = True
             logger.info("Successfully attached to Andor Solis")
         except ElementNotFoundError:
@@ -56,9 +56,3 @@ class Automatization:
         self.take_spectra()
         self.save_spectra(filename, first_time)
         self.close_saved_spectra()
-
-
-if __name__ == "__main__":
-    auto = Automatization()
-    auto.connect_to_solis("Process Explorer - *")
-    auto.save_spectra("vladislavs2", first_time=False)

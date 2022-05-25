@@ -6,18 +6,17 @@ from classes.coordinate import Coordinate
 
 
 logger = logging.getLogger(__name__)
-coloredlogs.install(level='INFO')
+coloredlogs.install(level="INFO")
 
 
-def get_scanning_points_from_points(pnt1: Coordinate, pnt2: Coordinate, nb_points: int):
-    spacing = (pnt2 - pnt1) / (nb_points + 1)
-    all_points = [pnt1 + spacing * i for i in range(1, nb_points + 1)]
+def get_scanning_points(pnt1: Coordinate, pnt2: Coordinate, num_points: int) -> list[Coordinate]:
+    spacing = (pnt2 - pnt1) / (num_points + 1)
+    all_points = [pnt1 + spacing * i for i in range(1, num_points + 1)]
     all_points.append(pnt2)
     return all_points
 
 
 class Scanner:
-
     def __init__(self):
         self.all_scanner_points: list[Coordinate] = []
         self.all_point_count = 0
@@ -47,7 +46,7 @@ class Scanner:
         return self.current_point_no, self.current_point_coord
 
     def save_coordinate(self, path):
-        with open(path, "w", newline='') as file:
+        with open(path, "w", newline="") as file:
             csv_writer = csv.writer(file, delimiter=",")
             for point in self.all_scanner_points:
                 csv_writer.writerow(list(point.tuple))
@@ -59,15 +58,13 @@ class Scanner:
             csv_reader = csv.reader(file2, delimiter=",")
             for i, row in enumerate(csv_reader):
                 if len(row) > 2:
-                    logger.error(
-                        f"Wrong file, more than 2 columns detected ! ({len(row)}) ")
+                    logger.error(f"Wrong file, more than 2 columns detected ! ({len(row)}) ")
                     return False
                 try:
                     x = int(row[0])
                     y = int(row[1])
                 except ValueError as e:
-                    logger.error(
-                        f"Could not convert{e.args[0].split(':')[-1]} at line: {i+1} to Integer")
+                    logger.error(f"Could not convert{e.args[0].split(':')[-1]} at line: {i+1} to Integer")
                     return False
                 self.all_scanner_points.append(Coordinate(x, y))
             self.all_point_count = len(self.all_scanner_points)

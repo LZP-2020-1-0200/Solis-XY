@@ -6,9 +6,9 @@ import csv
 from classes.coordinate import Coordinate, get_new_point
 from classes.microscope_mover import MicroscopeMover
 from classes.scanner import Scanner
-from gui.position_gui import PositionGUI, disable_element
+from gui.position_gui import PositionGUI
 import gui.buttons as btn
-from gui.helpers import str_to_int, get_load_path, get_save_path
+from gui.helpers import str_to_int, get_load_path, get_save_path, disable_element
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
@@ -59,7 +59,7 @@ def main():
             go_x_int = str_to_int(go_x)
             go_y_int = str_to_int(go_y)
 
-            if not go_x_int or not go_y_int:
+            if go_x_int == 0 or go_y_int == 0:
                 continue
 
             go_cord = Coordinate(go_x_int, go_y_int)
@@ -75,7 +75,7 @@ def main():
                 x_int = str_to_int(x)
                 y_int = str_to_int(y)
 
-                if x_int is None or y_int is None:
+                if x_int == 0 or y_int == 0:
                     error_in_validation = True
                     break
 
@@ -135,7 +135,7 @@ def main():
                 x_int = str_to_int(x)
                 y_int = str_to_int(y)
 
-                if x_int is None or y_int is None:
+                if x_int == 0 or y_int == 0:
                     error_in_validation = True
                     break
 

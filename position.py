@@ -8,7 +8,7 @@ from classes.microscope_mover import MicroscopeMover
 from classes.scanner import Scanner
 from gui.position_gui import PositionGUI, disable_element
 import gui.buttons as btn
-from gui.helpers import str_to_int
+from gui.helpers import str_to_int, get_load_path, get_save_path
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
@@ -85,7 +85,7 @@ def main():
             if error_in_validation:
                 continue
 
-            save_path = sg.popup_get_file("", no_window=1, default_extension=".txt", save_as=1)
+            save_path = get_save_path()
             if not save_path:
                 continue
 
@@ -96,11 +96,7 @@ def main():
             logger.info(f"Successfully saved points at {save_path}")
 
         if event == "-STEP1LOAD-":
-            load_path = sg.popup_get_file(
-                message="",
-                no_window=1,
-                file_types=(("TXT files", "*.txt"),),
-            )
+            load_path = get_load_path()
 
             if not load_path:
                 continue
@@ -156,11 +152,7 @@ def main():
                 writer.writerow(points["s2point2"].tuple)
             logger.info(f"Successfully saved points at {load_path}")
 
-            points_load_path = sg.popup_get_file(
-                message="",
-                no_window=1,
-                file_types=(("TXT files", "*.txt"),),
-            )
+            points_load_path = get_load_path()
 
             if not points_load_path:
                 continue
@@ -187,11 +179,7 @@ def main():
 
         # TODO delete
         if event == "-TEST-":
-            load_path = sg.popup_get_file(
-                "",
-                no_window=1,
-                file_types=(("TXT files", "*.txt"),),
-            )
+            load_path = get_load_path()
 
             if not load_path:
                 continue

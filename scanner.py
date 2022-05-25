@@ -9,7 +9,7 @@ from classes.scanner import Scanner, get_scanning_points_from_points
 from classes.solis import Automatization
 from gui.scanner_gui import AutomatizationGUI, disable_element
 import gui.buttons as btn
-from gui.helpers import str_to_int
+from gui.helpers import get_load_path, str_to_int, get_save_path
 
 PADDING = 7
 
@@ -145,13 +145,13 @@ def main():
             if not scanner.all_scanner_points:
                 logger.error("No points for saving !")
                 continue
-            points_save_path = sg.popup_get_file("", no_window=1, default_extension=".txt", save_as=1)
+            points_save_path = get_save_path()
             if points_save_path:
                 scanner.save_coordinate(points_save_path)
                 points_save_path = None
                 
         if event == "-LOADSCANPOINTS-":
-            points_load_path = sg.popup_get_file("", no_window=1, default_extension=".txt", file_types=(("TXT files", "*.txt"),))
+            points_load_path = get_load_path()
             if points_load_path and scanner.load_coordinates(points_load_path):
                 points_load_path = None
                 disable_element(window, "-NUMBER_OF_SCANS-")

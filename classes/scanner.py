@@ -1,8 +1,7 @@
 import coloredlogs
 import logging
-import csv
 
-from classes.coordinate import Coordinate, read_all_points_from_file
+from classes.coordinate import Coordinate, read_all_points_from_file, save_all_points_to_file
 
 
 logger = logging.getLogger(__name__)
@@ -46,11 +45,7 @@ class Scanner:
         return self.current_point_no, self.current_point_coord
 
     def save_coordinate(self, path):
-        with open(path, "w", newline="") as file:
-            csv_writer = csv.writer(file, delimiter=",")
-            for point in self.all_scanner_points:
-                csv_writer.writerow(list(point.tuple))
-        logger.info(f"Successfully saved points at {path}")
+        save_all_points_to_file(self.all_scanner_points, path)
 
     def load_coordinates(self, path):
         self.all_scanner_points = []

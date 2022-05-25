@@ -103,6 +103,13 @@ def read_all_points_from_file(path_to_file: str):
         return list_of_coordinates
 
 
+def save_all_points_to_file(points: list[Coordinate], path: str):
+    with open(path, "w", newline="") as file:
+        csv_writer = csv.writer(file, delimiter=",")
+        for point in points:
+            csv_writer.writerow(point.tuple)
+    logger.info(f"Successfully saved points at {path}")
+
 class Coordinate:
     def __init__(self, x: int | float, y: int | float):
 

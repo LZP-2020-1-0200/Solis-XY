@@ -15,7 +15,7 @@ BAUDRATE = 9600
 
 class MicroscopeMover:
     def __init__(self):
-        self.serial: serial.Serial
+        self.serial: serial.Serial = serial.Serial()
 
     def connect(self, com_port: str) -> bool:
 

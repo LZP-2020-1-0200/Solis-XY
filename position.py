@@ -3,7 +3,7 @@ import logging
 import PySimpleGUI as sg
 import csv
 
-from classes.coordinate import Coordinate, get_new_point, read_all_points_from_file
+from classes.coordinate import Coordinate, get_new_point, read_all_points_from_file, save_all_points_to_file
 from classes.microscope_mover import MicroscopeMover
 from classes.scanner import Scanner
 from gui.position_gui import PositionGUI
@@ -89,11 +89,8 @@ def main():
             if not save_path:
                 continue
 
-            with open(save_path, "w", newline="") as file:
-                writer = csv.writer(file, delimiter=",")
-                writer.writerow(points["s1point1"].tuple)
-                writer.writerow(points["s1point2"].tuple)
-            logger.info(f"Successfully saved points at {save_path}")
+            points_for_save = [points["s1point1"], points["s1point2"]]
+            save_all_points_to_file(points_for_save, save_path)
 
         if event == "-STEP1LOAD-":
             load_path = get_load_path()
@@ -144,12 +141,14 @@ def main():
             if error_in_validation:
                 continue
 
-            # TODO add some kind of error handling
-            with open(load_path[:-4] + "recalculated.txt", "w", newline="") as file:
-                writer = csv.writer(file, delimiter=",")
-                writer.writerow(points["s2point1"].tuple)
-                writer.writerow(points["s2point2"].tuple)
-            logger.info(f"Successfully saved points at {load_path}")
+            if "load_path" not in locals():
+                logger.error("Tried to calculate new points without loading initial first")
+                continue
+     
+            load_path = load_path[:-4] + "recalculated.txt"
+
+            points_for_save = [points["s2point1"], points["s2point2"]]
+            save_all_points_to_file(points_for_save, load_path)
 
             points_load_path = get_load_path()
 

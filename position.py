@@ -1,12 +1,11 @@
 import coloredlogs
 import logging
 import PySimpleGUI as sg
-import csv
 
 from classes.coordinate import Coordinate, get_new_points, read_all_points_from_file, save_all_points_to_file
 from classes.microscope_mover import MicroscopeMover
 from classes.scanner import Scanner
-from gui.position_gui import PositionGUI
+from gui.position_gui import PositionGUI, disable_step_elements
 import gui.buttons as btn
 from gui.helpers import str_to_int, get_load_path, get_save_path, disable_element
 
@@ -35,10 +34,12 @@ def main():
             port_description = values["-COM_PORT_CHOOSER-"]
             com_port = btn.get_com_port_from_desc(port_description)
 
-            if mover.connect(com_port):
-                disable_element(window, "-COM_PORT_CHOOSER-")
-                disable_element(window, "-REFRESHCOMPORTS-")
-                disable_element(window, "-CONNECT-")
+            if not mover.connect(com_port):
+                continue
+
+            disable_element(window, "-COM_PORT_CHOOSER-")
+            disable_element(window, "-REFRESHCOMPORTS-")
+            disable_element(window, "-CONNECT-")
 
         if "READ_COORD" in event:
             point = mover.get_coordinates()
@@ -50,7 +51,6 @@ def main():
             input_y = window[f"-S{event[2]}CORNER{event[-2]}_Y-"]
 
             btn.update_coordinate_inputs(input_x, input_y, point)
-            logger.info(f"Read point X: {point.x} Y: {point.y}")
 
         if "GOTOCORD" in event:
             go_x = values[f"-S{event[2]}CORNER{event[-2]}_X-"]
@@ -86,11 +86,14 @@ def main():
                 continue
 
             save_path = get_save_path()
+            
             if not save_path:
                 continue
 
             points_for_save = [points["s1point1"], points["s1point2"]]
             save_all_points_to_file(points_for_save, save_path)
+            
+            disable_step_elements(window,step=1)
 
         if event == "-STEP1LOAD-":
             load_path = get_load_path()
@@ -100,8 +103,8 @@ def main():
 
             coordinates = read_all_points_from_file(load_path)
 
-            if len(coordinates) > 2:
-                logger.error("Wrong file, too much points to unpack")
+            if len(coordinates) != 2:
+                logger.error(f"Wrong file, too much/little points ({len(coordinates)}), Expected: 2")
                 continue
 
             for i, coord in enumerate(coordinates):
@@ -110,16 +113,7 @@ def main():
                 input_y = window[f"-S1CORNER{i + 1}_Y-"]
                 btn.update_coordinate_inputs(input_x, input_y, coord)
 
-            disable_element(window, "-S1CORNER1_X-")
-            disable_element(window, "-S1CORNER1_Y-")
-            disable_element(window, "-S1CORNER2_X-")
-            disable_element(window, "-S1CORNER2_Y-")
-            disable_element(window, "-S1READ_COORD1-")
-            disable_element(window, "-S1GOTOCORD1-")
-            disable_element(window, "-S1READ_COORD2-")
-            disable_element(window, "-S1GOTOCORD2-")
-            disable_element(window, "-STEP1SUBMIT-")
-            disable_element(window, "-STEP1LOAD-")
+            disable_step_elements(window, step=1)
 
         if event == "-STEP2SUBMIT-":
             error_in_validation = False
@@ -141,62 +135,39 @@ def main():
             if error_in_validation:
                 continue
 
-            if "load_path" not in locals():
-                logger.error("Tried to calculate new points without loading initial first")
+            save_path = get_save_path()
+            if not save_path:
                 continue
-     
-            load_path = load_path[:-4] + "recalculated.txt"
 
             points_for_save = [points["s2point1"], points["s2point2"]]
-            save_all_points_to_file(points_for_save, load_path)
+            save_all_points_to_file(points_for_save, save_path)
+            
+            disable_step_elements(window, step=2)
 
+        if event == "-CONVERTPOINTS-":
+            
+            if "s1point1" not in points or "s1point2" not in points:
+                logger.error("One of the initial points is missing")
+                continue
+            
+            if "s2point1" not in points or "s2point2" not in points:
+                logger.error("One of the new points is missing")
+                continue
+            
             points_load_path = get_load_path()
 
             if not points_load_path:
                 continue
 
             scanner.load_coordinates(points_load_path)
-            new_points = []
 
-            # TODO test this and delete print statements
             old_corners = sorted([points["s1point1"], points["s1point2"]])
             new_corners = sorted([points["s2point1"], points["s2point2"]])
-            
+
             new_points = get_new_points(scanner.all_scanner_points, old_corners, new_corners)
-            scanner.set_points(new_points)
+            
+            scanner.set_points(new_points)            
             scanner.save_coordinate(points_load_path[:-4] + "_new.txt")
-            
-            
-            # old_corner = min(points["s1point1"], points["s1point2"])
-            # print("old corner: ", old_corner)
-            # new_corner_btm = min(points["s2point1"], points["s2point2"])
-            # print("new_corner_btm: ", new_corner_btm)
-            # new_corner_top = max(points["s2point1"], points["s2point2"])
-            # print("new corner top: ", new_corner_top)
-
-            # for old_point in scanner.all_scanner_points:
-            #     new_point = get_new_points(old_point, old_corner, new_corner_btm, new_corner_top)
-            #     new_points.append(new_point)
-            #     print("\nold point: ", old_point)
-            #     print("new_point: ", new_point)
-
-            # scanner.set_points(new_points)
-            # scanner.save_coordinate(points_load_path[:-4] + "_recalculated.txt")
-
-        # TODO delete
-        if event == "-TEST-":
-            load_path = get_load_path()
-
-            if not load_path:
-                continue
-
-            with open(load_path) as file:
-                csv_reader = csv.reader(file, delimiter=",")
-                for i, row in enumerate(csv_reader):
-                    coord = Coordinate(int(row[0]), int(row[1]))
-                    points[f"s2point{i+1}"] = coord
-                    btn.update_coordinate_inputs(window[f"-S2CORNER{i + 1}_X-"], window[f"-S2CORNER{i + 1}_Y-"], coord)
-                logger.info("Successfully loaded initial points")
 
         if event == "-SAMEVALUES-":
 

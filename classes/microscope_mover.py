@@ -41,7 +41,9 @@ class MicroscopeMover:
 
         self.serial.write("P \r".encode())
         coord_string = self.serial.read_until(b"\r").decode().split(",")[:2]
-        return Coordinate(int(coord_string[0]), int(coord_string[1]))
+        cord = Coordinate(int(coord_string[0]), int(coord_string[1]))
+        logger.info(f"Read point {cord}")
+        return cord
 
     def set_coordinates(self, cord: Coordinate):
         if not self.port_is_open():

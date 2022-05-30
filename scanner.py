@@ -58,6 +58,7 @@ def main():
     global paused, stopped
 
     solis = Automatization("Andor SOLIS for Spectroscopy: *")
+
     if not solis.success:
         return
 
@@ -70,6 +71,7 @@ def main():
 
     while 1:
         event, values = window.read()
+
         if event == sg.WIN_CLOSED:
             break
 
@@ -77,12 +79,39 @@ def main():
             window["-COM_PORT_CHOOSER-"].Update(values=btn.get_available_com_ports())
 
         if event == "-CONNECT-":
-            if mover.connect(btn.get_com_port_from_desc(values["-COM_PORT_CHOOSER-"])):
-                disable_element(window, "-COM_PORT_CHOOSER-")
-                disable_element(window, "-REFRESHCOMPORTS-")
-                disable_element(window, "-CONNECT-")
+            port_description = values["-COM_PORT_CHOOSER-"]
+            com_port = btn.get_com_port_from_desc(port_description)
+
+            if not mover.connect(com_port):
+                continue
+
+            disable_element(window, "-COM_PORT_CHOOSER-")
+            disable_element(window, "-REFRESHCOMPORTS-")
+            disable_element(window, "-CONNECT-")
+
+        if event == "-ADDPOINTOFINT-":
+            point = mover.get_coordinates()
+
+            if not isinstance(point, Coordinate):
+                continue
+
+            points_of_interest.append(point)
+            logger.info(f"Added point nr. {len(points_of_interest)}. with coordinates: {points_of_interest[-1]}")
+            window["-CURRENTPOINTCOUNT-"].update(len(points_of_interest))
+
+        if event == "-REMOVELAST-":
+
+            if not len(points_of_interest):
+                logger.error("List of points is empty!")
+                continue
+
+            logger.info(f"Removed point nr. {len(points_of_interest)}. with coordinates: {points_of_interest[-1]}")
+            points_of_interest.pop()
+            window["-CURRENTPOINTCOUNT-"].update(len(points_of_interest))
 
         if event == "-SUMBMISCANNO-":
+
+            points_of_interest = [Coordinate(423, 243), Coordinate(8678, 456)]
 
             scans_count = str_to_int(values["-NUMBER_OF_SCANS-"])
 
@@ -94,57 +123,62 @@ def main():
                 logger.error(f"At least 2 points must be chosen! Current point count: {len(points_of_interest)}")
                 continue
 
-            i = 0
             scanning_points: list[Coordinate] = []
-            while i < len(points_of_interest) - 1:
+            for i in range(len(points_of_interest) - 1):
                 between_points = get_scanning_points(points_of_interest[i], points_of_interest[i + 1], scans_count)
+
+                if i == 0:
+                    scanning_points.append(points_of_interest[0])
+
                 for point in between_points:
                     scanning_points.append(point)
-                i += 1
 
             scanner.set_points(scanning_points)
             logger.info("Points submitted successfully")
+            window["-POINTCOUNT-"].update(len(scanning_points))
+
             stopped, paused = False, False
 
             disable_element(window, "-NUMBER_OF_SCANS-")
             disable_element(window, "-SUMBMISCANNO-")
             disable_element(window, "-NUMOFSCANS-")
-
-        if event == "-ADDPOINTOFINT-":
-
-            point = mover.get_coordinates()
-            if point:
-                points_of_interest.append(point)
-                logger.info(f"Added point nr. {len(points_of_interest)}. with coordinates: {points_of_interest[-1]}")
-
-        if event == "-REMOVELAST-":
-            if len(points_of_interest):
-                logger.info(f"Removed point nr. {len(points_of_interest)}. with coordinates: {points_of_interest[-1]}")
-                points_of_interest.pop()
-            else:
-                logger.error("List of points is empty!")
+            disable_element(window, "-ADDPOINTOFINT-")
+            disable_element(window, "-REMOVELAST-")
 
         if event == "-SAVESCANPOINTS-":
+
             if not scanner.all_scanner_points:
                 logger.error("No points for saving !")
                 continue
+
             points_save_path = get_save_path()
-            if points_save_path:
-                scanner.save_coordinate(points_save_path)
-                points_save_path = None
+
+            if not points_save_path:
+                continue
+
+            scanner.save_coordinate(points_save_path)
 
         if event == "-LOADSCANPOINTS-":
+
             points_load_path = get_load_path()
-            if points_load_path and scanner.load_coordinates(points_load_path):
-                points_load_path = None
-                disable_element(window, "-NUMBER_OF_SCANS-")
-                disable_element(window, "-SUMBMISCANNO-")
-                disable_element(window, "-SAVESCANPOINTS-")
-                disable_element(window, "-LOADSCANPOINTS-")
-                disable_element(window, "-ADDPOINTOFINT-")
-                disable_element(window, "-REMOVELAST-")
+
+            if not points_load_path:
+                continue
+
+            if not scanner.load_coordinates(points_load_path):
+                continue
+
+            window["-POINTCOUNT-"].update(scanner.all_point_count)
+
+            disable_element(window, "-NUMBER_OF_SCANS-")
+            disable_element(window, "-SUMBMISCANNO-")
+            disable_element(window, "-SAVESCANPOINTS-")
+            disable_element(window, "-LOADSCANPOINTS-")
+            disable_element(window, "-ADDPOINTOFINT-")
+            disable_element(window, "-REMOVELAST-")
 
         if event == "-STARTSCAN-":
+
             if not scanner.all_scanner_points:
                 logger.error("No scanning points loaded or submitted")
                 continue
@@ -154,7 +188,7 @@ def main():
                 continue
 
             scans_per_point = str_to_int(values["-NUMOFSCANS-"])
-            
+
             if scans_per_point <= 0:
                 logger.error("Negative number of scans")
                 continue
@@ -162,6 +196,9 @@ def main():
             window.perform_long_operation(
                 lambda: start_scanning(window, scanner, mover, solis, scans_per_point), "-SCANEND-"
             )
+
+            disable_element(window, "-NUMOFSCANS-")
+            disable_element(window, "-STARTSCAN-")
 
         if len(event) == 1 and ord(event) in P_LETTER:
             paused = True if not paused else False

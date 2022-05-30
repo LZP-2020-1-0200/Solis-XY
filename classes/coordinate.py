@@ -1,5 +1,5 @@
 from __future__ import annotations
-from math import atan2, sin, cos, radians, pi
+from math import atan2, degrees, sin, cos, radians
 import coloredlogs
 import logging
 import csv
@@ -19,25 +19,14 @@ def get_rotation(btm_point: Coordinate, top_point: Coordinate, edge: str = "left
     Args:
         pnt1 (Coordinate): Bottom corner of line
         pnt2 (Coordinate): Top corner of line
-        edge {'left', 'top', 'right', 'bottom'}, optional: Side of edge. Defaults to "left".
 
     Returns:
         float: Rotation in degrees
     """
-    if edge not in ["left", "right", "bottom", "top"]:
-        raise TypeError(f'Not possible edge value "{edge}" ')
-    offset = 0
-    match edge:
-        case "top":
-            offset = 90
-        case "right":
-            offset = 180
-        case "bottom":
-            offset = 90
 
     corner_length = top_point - btm_point
-    rotation = atan2(*corner_length.tuple)
-    return rotation * 180 / pi * -1 + offset
+    rotation = atan2(corner_length.y, corner_length.x)
+    return degrees(rotation) - 90
 
 
 def rotate_point(point: Coordinate, angle: int | float) -> Coordinate:
@@ -54,32 +43,42 @@ def get_translation(initial_point: Coordinate, new_point: Coordinate, angle: int
     return Coordinate(x_transl, y_transl)
 
 
-def get_new_point(
-    old_point: Coordinate, old_corner: Coordinate, new_corner_btm: Coordinate, new_corner_top: Coordinate, btm=True
-) -> Coordinate:
-    """Generate new point based on rotation and translation
+def get_new_points(
+    old_points: list[Coordinate],
+    old_corners: list[Coordinate],
+    new_corners: list[Coordinate],
+):
+    """Returns new points of interest based on rotation and/or translation of new corners
 
     Args:
-        old_point (Coordinate): Old point of interest
-        old_corner (Coordinate): Initial corner point
-        new_corner_btm (Coordinate): New corner bottom point
-        new_corner_top (Coordinate): New corner top point
-        btm (bool, optional): True if new corner is line's bottom point else False. Defaults to bottom.
+        old_points (list[Coordinate]): List of old point of interest
+        old_corners (list[Coordinate]): Sorted list of old corners
+        new_corners (list[Coordinate]): Sorted list of new corners
 
     Returns:
-        Coordinate: New point based on rotation and translation
+        list[Coordinate]: List of new calculated points
     """
-    # Get rotation from new corners
-    rotation = get_rotation(new_corner_btm, new_corner_top)
-    # Generate rotated point from rotation and old point
-    old_point_rotated = rotate_point(old_point, rotation)
-    # Calculate translation using old corner point and new corner point
-    if btm:
-        translation = get_translation(old_corner, new_corner_btm, rotation)
-    else:
-        translation = get_translation(old_corner, new_corner_top, rotation)
-    # Return rotated and/or translated point
-    return old_point_rotated + translation
+    new_points: list[Coordinate] = []
+    # Get total rotation from both new and old corners
+    rotation_old = get_rotation(old_corners[0], old_corners[1])
+    rotation_new = get_rotation(new_corners[0], new_corners[1])
+    total_rotation = rotation_new - rotation_old
+
+    # Calculate translation using old corner points and new corner points
+    translation1 = get_translation(old_corners[0], new_corners[0], total_rotation)
+    translation2 = get_translation(old_corners[1], new_corners[1], total_rotation)
+    average_translation = (translation1 + translation2) / 2
+
+    for point in old_points:
+        # Generate rotated point from rotation and old point
+        point_rotated = rotate_point(point, total_rotation)
+        # Calculate new rotated and/or translated point
+        new_point = point_rotated + average_translation
+        new_points.append(new_point)
+
+    # old_point_rotated = rotate_point(old_point, rotation)
+
+    return new_points
 
 
 def read_all_points_from_file(path_to_file: str):
@@ -109,6 +108,7 @@ def save_all_points_to_file(points: list[Coordinate], path: str):
         for point in points:
             csv_writer.writerow(point.tuple)
     logger.info(f"Successfully saved points at {path}")
+
 
 class Coordinate:
     def __init__(self, x: int | float, y: int | float):
@@ -148,14 +148,3 @@ class Coordinate:
 
     def __lt__(self, other: Coordinate):
         return (self.y) < (other.y)
-
-
-# test
-if __name__ == "__main__":
-
-    btm = Coordinate(1.74, 2.23)
-    top = Coordinate(1.13, 7.2)
-
-    points = [btm, top]
-
-    print(max(points))

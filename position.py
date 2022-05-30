@@ -3,7 +3,7 @@ import logging
 import PySimpleGUI as sg
 import csv
 
-from classes.coordinate import Coordinate, get_new_point, read_all_points_from_file, save_all_points_to_file
+from classes.coordinate import Coordinate, get_new_points, read_all_points_from_file, save_all_points_to_file
 from classes.microscope_mover import MicroscopeMover
 from classes.scanner import Scanner
 from gui.position_gui import PositionGUI
@@ -159,21 +159,29 @@ def main():
             new_points = []
 
             # TODO test this and delete print statements
-            old_corner = min(points["s1point1"], points["s1point2"])
-            print("old corner: ", old_corner)
-            new_corner_btm = min(points["s2point1"], points["s2point2"])
-            print("new_corner_btm: ", new_corner_btm)
-            new_corner_top = max(points["s2point1"], points["s2point2"])
-            print("new corner top: ", new_corner_top)
-
-            for old_point in scanner.all_scanner_points:
-                new_point = get_new_point(old_point, old_corner, new_corner_btm, new_corner_top)
-                new_points.append(new_point)
-                print("\nold point: ", old_point)
-                print("new_point: ", new_point)
-
+            old_corners = sorted([points["s1point1"], points["s1point2"]])
+            new_corners = sorted([points["s2point1"], points["s2point2"]])
+            
+            new_points = get_new_points(scanner.all_scanner_points, old_corners, new_corners)
             scanner.set_points(new_points)
-            scanner.save_coordinate(points_load_path[:-4] + "_recalculated.txt")
+            scanner.save_coordinate(points_load_path[:-4] + "_new.txt")
+            
+            
+            # old_corner = min(points["s1point1"], points["s1point2"])
+            # print("old corner: ", old_corner)
+            # new_corner_btm = min(points["s2point1"], points["s2point2"])
+            # print("new_corner_btm: ", new_corner_btm)
+            # new_corner_top = max(points["s2point1"], points["s2point2"])
+            # print("new corner top: ", new_corner_top)
+
+            # for old_point in scanner.all_scanner_points:
+            #     new_point = get_new_points(old_point, old_corner, new_corner_btm, new_corner_top)
+            #     new_points.append(new_point)
+            #     print("\nold point: ", old_point)
+            #     print("new_point: ", new_point)
+
+            # scanner.set_points(new_points)
+            # scanner.save_coordinate(points_load_path[:-4] + "_recalculated.txt")
 
         # TODO delete
         if event == "-TEST-":

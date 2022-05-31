@@ -13,7 +13,7 @@ UNIT_TO_NANOMETER = 40
 NM_TO_QM = 1000
 
 
-def get_rotation(btm_point: Coordinate, top_point: Coordinate, edge: str = "left") -> float:
+def get_rotation(btm_point: Coordinate, top_point: Coordinate) -> float:
     """Gets rotation angle in degrees
 
     Args:
@@ -23,10 +23,9 @@ def get_rotation(btm_point: Coordinate, top_point: Coordinate, edge: str = "left
     Returns:
         float: Rotation in degrees
     """
-
     corner_length = top_point - btm_point
     rotation = atan2(corner_length.y, corner_length.x)
-    return degrees(rotation) - 90
+    return degrees(rotation)
 
 
 def rotate_point(point: Coordinate, angle: int | float) -> Coordinate:
@@ -75,8 +74,6 @@ def get_new_points(
         # Calculate new rotated and/or translated point
         new_point = point_rotated + average_translation
         new_points.append(new_point)
-
-    # old_point_rotated = rotate_point(old_point, rotation)
 
     return new_points
 

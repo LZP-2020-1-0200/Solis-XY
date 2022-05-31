@@ -4,15 +4,20 @@ from classes.coordinate import Coordinate, get_rotation, rotate_point, get_trans
 
 
 class RotationTest(unittest.TestCase):
+    def test_rotation_45(self):
+        cord1, cord2 = Coordinate(0, 0), Coordinate(7, 7)
+        rotation = get_rotation(cord1, cord2)
+        self.assertEqual(rotation, 45)
+
     def test_rotate_point_90(self):
         cord1, cord2 = Coordinate(2, 2), Coordinate(2, 7)
-        self.assertEqual(get_rotation(cord1, cord2), 0)
+        self.assertEqual(get_rotation(cord1, cord2), 90)
 
     def test_get_rotation_at_97_deg(self):
         cord1 = Coordinate(870.6768, 1114.42)
         cord2 = Coordinate(-226.147, 10047.3)
         calculated_rotation = get_rotation(cord1, cord2)
-        self.assertAlmostEqual(calculated_rotation, 7, places=2)
+        self.assertAlmostEqual(calculated_rotation, 97, places=2)
 
     def test_calculate_translation_x(self):
         old_cord = Coordinate(2, 2)
@@ -235,6 +240,42 @@ class RotationTest(unittest.TestCase):
         old_corners = sorted([old_corner1, old_corner2])
 
         new_corner1 = Coordinate(59827, -7875)
+        new_croner2 = Coordinate(60037, -12850)
+        new_corners = sorted([new_corner1, new_croner2])
+
+        old_point = Coordinate(69448, -9696)
+        real_new_point = Coordinate(57836, -7947)
+
+        calculated_new_point = get_new_points([old_point], old_corners, new_corners)[0]
+
+        difference = abs(real_new_point - calculated_new_point)
+
+        self.assertTrue(difference.x <= 30 and difference.y <= 30)
+
+    def test_7_real_sample_diagonal_btm_top(self):
+        old_corner1 = Coordinate(65188, -13662)
+        old_corner2 = Coordinate(71373, -10256)
+        old_corners = sorted([old_corner1, old_corner2])
+
+        new_corner1 = Coordinate(55050, -13064)
+        new_croner2 = Coordinate(59827, -7875)
+        new_corners = sorted([new_corner1, new_croner2])
+
+        old_point = Coordinate(69448, -9696)
+        real_new_point = Coordinate(57836, -7947)
+
+        calculated_new_point = get_new_points([old_point], old_corners, new_corners)[0]
+
+        difference = abs(real_new_point - calculated_new_point)
+
+        self.assertTrue(difference.x <= 30 and difference.y <= 30)
+
+    def test_7_real_sample_diagonal_top_btm(self):
+        old_corner1 = Coordinate(66565, -8852)
+        old_corner2 = Coordinate(69990, -15034)
+        old_corners = sorted([old_corner1, old_corner2])
+
+        new_corner1 = Coordinate(54830, -8064)
         new_croner2 = Coordinate(60037, -12850)
         new_corners = sorted([new_corner1, new_croner2])
 

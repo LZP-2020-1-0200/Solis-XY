@@ -30,13 +30,11 @@ def construct_number_with_padding(number: int):
     return f"{'0'*(PADDING - digit_count)}{number_as_str}"
 
 
-def start_scanning(wdw: sg.Window, scanner: Scanner, mover: MicroscopeMover, solis: Automatization, point_scans: int):
+def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatization, point_scans: int):
     global paused, stopped
     logger.info("Started scanning sequence")
     for i, point in enumerate(scanner.all_scanner_points):
         point_nr = construct_number_with_padding(i + 1)
-        wdw["-SCANNO-"].update(scanner.current_point_no + 1)
-        wdw["-CURRENTXY-"].update(scanner.current_point_coord)
         scanner.next_scan()
         mover.set_coordinates(point)
         for j in range(point_scans):
@@ -46,10 +44,7 @@ def start_scanning(wdw: sg.Window, scanner: Scanner, mover: MicroscopeMover, sol
             if stopped:
                 return
 
-            if point_scans == 1:
-                solis.capture_and_save(f"Point nr. {point_nr}. {point.tuple}", i == 0 and j == 0)
-            else:
-                solis.capture_and_save(f"Point nr. {point_nr}. {point.tuple}_{j+1}", i == 0 and j == 0)
+            solis.capture_and_save(f"P{point_nr}_{j+1}", i == 0 and j == 0)
 
     logger.info("Successfully ended scanning sequence")
 
@@ -110,9 +105,6 @@ def main():
             window["-CURRENTPOINTCOUNT-"].update(len(points_of_interest))
 
         if event == "-SUMBMISCANNO-":
-
-            points_of_interest = [Coordinate(423, 243), Coordinate(8678, 456)]
-
             scans_count = str_to_int(values["-NUMBER_OF_SCANS-"])
 
             if scans_count <= 0:
@@ -141,7 +133,6 @@ def main():
 
             disable_element(window, "-NUMBER_OF_SCANS-")
             disable_element(window, "-SUMBMISCANNO-")
-            disable_element(window, "-NUMOFSCANS-")
             disable_element(window, "-ADDPOINTOFINT-")
             disable_element(window, "-REMOVELAST-")
 
@@ -194,7 +185,7 @@ def main():
                 continue
 
             window.perform_long_operation(
-                lambda: start_scanning(window, scanner, mover, solis, scans_per_point), "-SCANEND-"
+                lambda: start_scanning(scanner, mover, solis, scans_per_point), "-SCANEND-"
             )
 
             disable_element(window, "-NUMOFSCANS-")

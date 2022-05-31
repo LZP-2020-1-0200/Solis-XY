@@ -28,7 +28,7 @@ def step3_layout():
         [sg.B("Save points", key="-SAVESCANPOINTS-"), sg.B("Load points", key="-LOADSCANPOINTS-")],
         [
             sg.T("Scans per point: "),
-            sg.I("2", s=(3, 1), justification="c", key="-NUMOFSCANS-"),
+            sg.I("1", s=(3, 1), justification="c", key="-NUMOFSCANS-"),
             sg.B("Start Scanning", key="-STARTSCAN-"),
         ],
     ]

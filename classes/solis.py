@@ -46,7 +46,7 @@ class Automatization:
             sleep(30)
         else:
             keyboard.send_keys(ENTER)
-        logger.info(f"Spectra nr.{filename.split('.')[1]}. saved")
+        # logger.info(f"Spectra nr.{filename.split('.')[1]}. saved")
 
     def close_saved_spectra(self):
         self.main_dlg.set_focus()

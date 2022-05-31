@@ -30,7 +30,9 @@ def construct_number_with_padding(number: int):
     return f"{'0'*(PADDING - digit_count)}{number_as_str}"
 
 
-def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatization, point_scans: int):
+def start_scanning(
+    scanner: Scanner, mover: MicroscopeMover, solis: Automatization, point_scans: int, integr_time: int
+):
     global paused, stopped
     logger.info("Started scanning sequence")
     for i, point in enumerate(scanner.all_scanner_points):
@@ -44,7 +46,9 @@ def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatizati
             if stopped:
                 return
 
-            solis.capture_and_save(f"P{point_nr}_{j+1}", i == 0 and j == 0)
+            solis.capture_and_save(
+                filename=f"P{point_nr}_{j+1}", integr_time=integr_time, first_time=i == 0 and j == 0
+            )
 
     logger.info("Successfully ended scanning sequence")
 
@@ -184,8 +188,14 @@ def main():
                 logger.error("Negative number of scans")
                 continue
 
+            integration_time = str_to_int(values["-INTEGRATIONTIME-"])
+
+            if integration_time <= 0:
+                logger.error("Negative total integration time")
+                continue
+
             window.perform_long_operation(
-                lambda: start_scanning(scanner, mover, solis, scans_per_point), "-SCANEND-"
+                lambda: start_scanning(scanner, mover, solis, scans_per_point, integration_time), "-SCANEND-"
             )
 
             disable_element(window, "-NUMOFSCANS-")

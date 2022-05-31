@@ -31,28 +31,28 @@ class Automatization:
             logger.error("Andor Solis is not detected ! Please open it first.")
             self.success = False
 
-    def take_spectra(self):
+    def take_spectra(self, sleep_time : int):
         self.main_dlg.set_focus()
         keyboard.send_keys(F5)
         logger.info("Taking spectra...")
-        sleep(12)
+        sleep(sleep_time + 2)
         logger.info("Spectra taken")
 
     def save_spectra(self, filename: str, first_time: bool):
         self.main_dlg.set_focus()
         keyboard.send_keys(f"{CTRL}{S}{filename.replace(' ',SPACE)}")
         if first_time:
-            logger.warning("There is 30 seconds to choose saving directory")
-            sleep(30)
+            logger.warning("There is 45 seconds to manually save first file")
+            sleep(45)
         else:
             keyboard.send_keys(ENTER)
-        # logger.info(f"Spectra nr.{filename.split('.')[1]}. saved")
+        logger.info(f"Spectra nr.{filename[:8]}. saved")
 
     def close_saved_spectra(self):
         self.main_dlg.set_focus()
         keyboard.send_keys(f"{ALT}{F}{DOWN}{ENTER}")
 
-    def capture_and_save(self, filename: str, first_time: bool = True):
-        self.take_spectra()
+    def capture_and_save(self, filename: str, integr_time : int, first_time: bool):
+        self.take_spectra(integr_time)
         self.save_spectra(filename, first_time)
         self.close_saved_spectra()

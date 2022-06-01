@@ -171,6 +171,18 @@ def main():
             disable_element(window, "-LOADSCANPOINTS-")
             disable_element(window, "-ADDPOINTOFINT-")
             disable_element(window, "-REMOVELAST-")
+            
+        if event == "-GOFIRSTPOINT-":
+            
+            if not scanner.all_scanner_points:
+                logger.error("No scanning points loaded or submitted")
+                continue
+            
+            if not mover.port_is_open():
+                logger.error("Cannot go: Microscope is not connected")
+                continue
+            
+            mover.set_coordinates(scanner.all_scanner_points[0])
 
         if event == "-STARTSCAN-":
 
@@ -200,6 +212,7 @@ def main():
 
             disable_element(window, "-NUMOFSCANS-")
             disable_element(window, "-STARTSCAN-")
+            disable_element(window, "-GOFIRSTPOINT-")
 
         if len(event) == 1 and ord(event) in P_LETTER:
             paused = True if not paused else False

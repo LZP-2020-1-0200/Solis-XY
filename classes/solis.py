@@ -48,6 +48,7 @@ class Automatization:
             sleep(45)
         else:
             keyboard.send_keys(ENTER)
+        # TODO test this
         logger.info(f"Spectra nr.{filename[:8]}. saved")
 
     def close_saved_spectra(self):

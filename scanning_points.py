@@ -28,6 +28,11 @@ def main():
             break
 
         if event == "-ADDPOINTOFINT-":
+            
+            if len(points_of_interest) == 2:
+                logger.error("Max of 2 points")
+                continue 
+            
             point = mover.get_coordinates()
 
             points_of_interest.append(point)
@@ -45,9 +50,14 @@ def main():
             window["-CURRENTPOINTCOUNT-"].update(len(points_of_interest))
 
         if event == "-GETHEIGHT-":
+            
+            if len(points_of_interest) != 2:
+                logger.error("Firstly choose two points of interest")
+                continue
+            
             height = mover.get_coordinates()
             height = height - points_of_interest[-1]
-            window["-HEIGHT-"].update(f"{height.y_qm} qm")
+            window["-HEIGHT-"].update(f"{height.y_qm} μm")
 
         if event == "-SUMBMISCANNO-":
             scans_count = str_to_int(values["-NUMBER_OF_SCANS-"])
@@ -63,7 +73,7 @@ def main():
             number_of_lines = str_to_int(values["-NUMOFLINES-"])
 
             if number_of_lines <= 0:
-                logger.error("Negative number of scans")
+                logger.error("Negative number of lines")
                 continue
 
             if not height.x and not height.y:
@@ -71,19 +81,21 @@ def main():
 
             scanning_points: list[Coordinate] = []
             spacing = height / (number_of_lines + 1)
+            
+            start = points_of_interest[0] if points_of_interest[0].x  < points_of_interest[1].x else points_of_interest[1]
+            end = points_of_interest[0] if points_of_interest[0].x  > points_of_interest[1].x else points_of_interest[1]
 
-            #TODO add automatic min max to determine beginning end
             for i in range(number_of_lines):
-                beginning = points_of_interest[0] + spacing * i
-                end = points_of_interest[1] + spacing * i
-                between_points = get_scanning_points(beginning, end, scans_count)
+                new_start = start + spacing * i
+                new_end = end + spacing * i
+                print(new_start, new_end)
+                between_points = get_scanning_points(new_start, new_end, scans_count)
 
                 for point in between_points:
                     scanning_points.append(point)
 
             scanner.set_points(scanning_points)
             logger.info("Points submitted successfully")
-            window["-POINTCOUNT-"].update(len(scanning_points))
 
             disable_element(window, "-NUMBER_OF_SCANS-")
             disable_element(window, "-SUMBMISCANNO-")

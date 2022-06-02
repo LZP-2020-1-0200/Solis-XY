@@ -6,19 +6,15 @@ def create_layout():
         [sg.B("Add point", key="-ADDPOINTOFINT-"), sg.B("Remove last point", key="-REMOVELAST-")],
         [sg.T("Current point count:"), sg.T("0", key="-CURRENTPOINTCOUNT-")],
         [
-            sg.T("Number of scans per two points: "),
-            sg.I("", key="-NUMBER_OF_SCANS-", s=(9, 2), enable_events=1, justification="c"),
-        ],
-        [sg.T("Number of lines"), sg.I("1", key="-NUMOFLINES-", s=(9, 2))],
-        [
-            sg.B("Calculate Height", key="-GETHEIGHT-"),
-            sg.T("0", key="-HEIGHT-"),
+            sg.B("Add height point", key="-GETHEIGHT-"),
+            sg.T("0 μm", key="-HEIGHT-"),
         ],
         [
-            sg.B("Submit", key="-SUMBMISCANNO-"),
+            sg.T("Number of scans: ", s=(14, 1)),
+            sg.I("", key="-NUMBER_OF_SCANS-", s=(7, 2), enable_events=1, justification="c"),
         ],
-        [sg.T("Total scanning point count:"), sg.T("0", key="-POINTCOUNT-")],
-        [sg.B("Save points", key="-SAVESCANPOINTS-")],
+        [sg.T("Number of lines:", s=(14, 1)), sg.I("1", key="-NUMOFLINES-", s=(7, 2), justification="c")],
+        [sg.B("Calculate points", key="-SUMBMISCANNO-"), sg.B("Save points", key="-SAVESCANPOINTS-")],
     ]
 
     layout = sg.Frame(layout=layout, title="", expand_x=True)

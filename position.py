@@ -3,7 +3,7 @@ import logging
 import PySimpleGUI as sg
 
 from classes.coordinate import Coordinate, get_new_points, read_all_points_from_file, save_all_points_to_file
-from classes.microscope_mover import MicroscopeMover
+from classes.microscope_mover import mover
 from classes.scanner import Scanner
 from gui.position_gui import PositionGUI, disable_step_elements
 import gui.buttons as btn
@@ -15,7 +15,6 @@ coloredlogs.install(level="INFO")
 
 def main():
     gui = PositionGUI()
-    mover = MicroscopeMover()
     scanner = Scanner()
     window = gui.window
 
@@ -26,20 +25,6 @@ def main():
 
         if event == sg.WIN_CLOSED:
             break
-
-        if event == "-REFRESHCOMPORTS-":
-            window["-COM_PORT_CHOOSER-"].update(values=btn.get_available_com_ports())
-
-        if event == "-CONNECT-":
-            port_description = values["-COM_PORT_CHOOSER-"]
-            com_port = btn.get_com_port_from_desc(port_description)
-
-            if not mover.connect(com_port):
-                continue
-
-            disable_element(window, "-COM_PORT_CHOOSER-")
-            disable_element(window, "-REFRESHCOMPORTS-")
-            disable_element(window, "-CONNECT-")
 
         if "READ_COORD" in event:
             point = mover.get_coordinates()
@@ -86,14 +71,14 @@ def main():
                 continue
 
             save_path = get_save_path()
-            
+
             if not save_path:
                 continue
 
             points_for_save = [points["s1point1"], points["s1point2"]]
             save_all_points_to_file(points_for_save, save_path)
-            
-            disable_step_elements(window,step=1)
+
+            disable_step_elements(window, step=1)
 
         if event == "-STEP1LOAD-":
             load_path = get_load_path()
@@ -141,19 +126,19 @@ def main():
 
             points_for_save = [points["s2point1"], points["s2point2"]]
             save_all_points_to_file(points_for_save, save_path)
-            
+
             disable_step_elements(window, step=2)
 
         if event == "-CONVERTPOINTS-":
-            
+
             if "s1point1" not in points or "s1point2" not in points:
                 logger.error("One of the initial points is missing")
                 continue
-            
+
             if "s2point1" not in points or "s2point2" not in points:
                 logger.error("One of the new points is missing")
                 continue
-            
+
             points_load_path = get_load_path()
 
             if not points_load_path:
@@ -165,8 +150,8 @@ def main():
             new_corners = sorted([points["s2point1"], points["s2point2"]])
 
             new_points = get_new_points(scanner.all_scanner_points, old_corners, new_corners)
-            
-            scanner.set_points(new_points)            
+
+            scanner.set_points(new_points)
             scanner.save_coordinate(points_load_path[:-4] + "_new.txt")
 
         if event == "-SAMEVALUES-":

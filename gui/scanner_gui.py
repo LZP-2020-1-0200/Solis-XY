@@ -1,18 +1,4 @@
 import PySimpleGUI as sg
-from gui.buttons import get_available_com_ports
-
-
-def step0_layout():
-    step_0_layout = [
-        [
-            sg.T("COM Port: "),
-            sg.Combo([*get_available_com_ports()], key="-COM_PORT_CHOOSER-", readonly=True),
-            sg.B("Refresh", key="-REFRESHCOMPORTS-"),
-            sg.B("Connect", key="-CONNECT-"),
-        ]
-    ]
-    step0 = sg.Frame(layout=step_0_layout, title="COM Port", expand_x=1)
-    return step0
 
 
 def step3_layout():
@@ -46,7 +32,7 @@ class AutomatizationGUI:
         # sg.theme("Reddit")
         window = sg.Window(
             "Auto-Scanner",
-            layout=[[step0_layout()], [step3_layout()]],
+            layout=[[step3_layout()]],
             finalize=True,
             font='"Verdana" 12',
             return_keyboard_events=True,

@@ -1,5 +1,4 @@
 import PySimpleGUI as sg
-from gui.scanner_gui import step0_layout
 from gui.helpers import disable_element
 
 
@@ -84,7 +83,7 @@ class PositionGUI:
         # sg.theme("Reddit")
         window = sg.Window(
             "New point calculator",
-            layout=[[step0_layout()], [step1_layout()], [step2_layout()]],
+            layout=[[step1_layout()], [step2_layout()]],
             finalize=True,
             font='"Verdana" 12',
         )

@@ -96,3 +96,6 @@ class MicroscopeMover:
         if not self.serial:
             return False
         return self.serial.isOpen()
+
+
+mover = MicroscopeMover()

@@ -4,11 +4,10 @@ import PySimpleGUI as sg
 import time
 
 from classes.coordinate import Coordinate
-from classes.microscope_mover import MicroscopeMover
+from classes.microscope_mover import MicroscopeMover, mover
 from classes.scanner import Scanner, get_scanning_points
 from classes.solis import Automatization
 from gui.scanner_gui import AutomatizationGUI
-import gui.buttons as btn
 from gui.helpers import get_load_path, str_to_int, get_save_path, disable_element
 
 PADDING = 7
@@ -62,7 +61,6 @@ def main():
         return
 
     gui = AutomatizationGUI()
-    mover = MicroscopeMover()
     scanner = Scanner()
     window = gui.window
 
@@ -73,20 +71,6 @@ def main():
 
         if event == sg.WIN_CLOSED:
             break
-
-        if event == "-REFRESHCOMPORTS-":
-            window["-COM_PORT_CHOOSER-"].Update(values=btn.get_available_com_ports())
-
-        if event == "-CONNECT-":
-            port_description = values["-COM_PORT_CHOOSER-"]
-            com_port = btn.get_com_port_from_desc(port_description)
-
-            if not mover.connect(com_port):
-                continue
-
-            disable_element(window, "-COM_PORT_CHOOSER-")
-            disable_element(window, "-REFRESHCOMPORTS-")
-            disable_element(window, "-CONNECT-")
 
         if event == "-ADDPOINTOFINT-":
             point = mover.get_coordinates()
@@ -171,17 +155,17 @@ def main():
             disable_element(window, "-LOADSCANPOINTS-")
             disable_element(window, "-ADDPOINTOFINT-")
             disable_element(window, "-REMOVELAST-")
-            
+
         if event == "-GOFIRSTPOINT-":
-            
+
             if not scanner.all_scanner_points:
                 logger.error("No scanning points loaded or submitted")
                 continue
-            
+
             if not mover.port_is_open():
                 logger.error("Cannot go: Microscope is not connected")
                 continue
-            
+
             mover.set_coordinates(scanner.all_scanner_points[0])
 
         if event == "-STARTSCAN-":

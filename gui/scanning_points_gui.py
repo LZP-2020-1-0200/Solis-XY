@@ -8,6 +8,13 @@ def create_layout():
         [
             sg.T("Number of scans per two points: "),
             sg.I("", key="-NUMBER_OF_SCANS-", s=(9, 2), enable_events=1, justification="c"),
+        ],
+        [sg.T("Number of lines"), sg.I("1", key="-NUMOFLINES-", s=(9, 2))],
+        [
+            sg.B("Calculate Height", key="-GETHEIGHT-"),
+            sg.T("0", key="-HEIGHT-"),
+        ],
+        [
             sg.B("Submit", key="-SUMBMISCANNO-"),
         ],
         [sg.T("Total scanning point count:"), sg.T("0", key="-POINTCOUNT-")],

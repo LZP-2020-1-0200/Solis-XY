@@ -11,7 +11,6 @@ coloredlogs.install(level="INFO")
 def get_scanning_points(pnt1: Coordinate, pnt2: Coordinate, num_points: int) -> list[Coordinate]:
     spacing = (pnt2 - pnt1) / (num_points + 1)
     all_points = [pnt1 + spacing * i for i in range(1, num_points + 1)]
-    all_points.append(pnt2)
     return all_points
 
 

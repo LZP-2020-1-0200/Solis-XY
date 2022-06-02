@@ -9,7 +9,7 @@ from classes.solis import Automatization
 from gui.scanner_gui import AutomatizationGUI
 from gui.helpers import get_load_path, str_to_int, disable_element
 
-PADDING = 7
+PADDING = 4
 
 P_LETTER = ord("p"), ord("P")
 S_LETTER = ord("s"), ord("S")

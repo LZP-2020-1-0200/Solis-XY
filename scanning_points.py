@@ -14,6 +14,7 @@ coloredlogs.install(level="INFO")
 
 # TODO Add graphical representation
 def main():
+    height = Coordinate(0, 0)
     gui = ScannerPointsGUI()
     scanner = Scanner()
     window = gui.window
@@ -43,6 +44,11 @@ def main():
             points_of_interest.pop()
             window["-CURRENTPOINTCOUNT-"].update(len(points_of_interest))
 
+        if event == "-GETHEIGHT-":
+            height = mover.get_coordinates()
+            height = height - points_of_interest[-1]
+            window["-HEIGHT-"].update(f"{height.y_qm} qm")
+
         if event == "-SUMBMISCANNO-":
             scans_count = str_to_int(values["-NUMBER_OF_SCANS-"])
 
@@ -54,12 +60,23 @@ def main():
                 logger.error(f"At least 2 points must be chosen! Current point count: {len(points_of_interest)}")
                 continue
 
-            scanning_points: list[Coordinate] = []
-            for i in range(len(points_of_interest) - 1):
-                between_points = get_scanning_points(points_of_interest[i], points_of_interest[i + 1], scans_count)
+            number_of_lines = str_to_int(values["-NUMOFLINES-"])
 
-                if i == 0:
-                    scanning_points.append(points_of_interest[0])
+            if number_of_lines <= 0:
+                logger.error("Negative number of scans")
+                continue
+
+            if not height.x and not height.y:
+                continue
+
+            scanning_points: list[Coordinate] = []
+            spacing = height / (number_of_lines + 1)
+
+            #TODO add automatic min max to determine beginning end
+            for i in range(number_of_lines):
+                beginning = points_of_interest[0] + spacing * i
+                end = points_of_interest[1] + spacing * i
+                between_points = get_scanning_points(beginning, end, scans_count)
 
                 for point in between_points:
                     scanning_points.append(point)

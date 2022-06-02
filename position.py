@@ -7,7 +7,7 @@ from classes.microscope_mover import mover
 from classes.scanner import Scanner
 from gui.position_gui import PositionGUI, disable_step_elements
 import gui.buttons as btn
-from gui.helpers import str_to_int, get_load_path, get_save_path, disable_element
+from gui.helpers import str_to_int, get_load_path, get_save_path
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
@@ -28,9 +28,6 @@ def main():
 
         if "READ_COORD" in event:
             point = mover.get_coordinates()
-
-            if not point:
-                continue
 
             input_x = window[f"-S{event[2]}CORNER{event[-2]}_X-"]
             input_y = window[f"-S{event[2]}CORNER{event[-2]}_Y-"]

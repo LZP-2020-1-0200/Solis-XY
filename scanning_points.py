@@ -29,9 +29,6 @@ def main():
         if event == "-ADDPOINTOFINT-":
             point = mover.get_coordinates()
 
-            if not isinstance(point, Coordinate):
-                continue
-
             points_of_interest.append(point)
             logger.info(f"Added point nr. {len(points_of_interest)}. with coordinates: {points_of_interest[-1]}")
             window["-CURRENTPOINTCOUNT-"].update(len(points_of_interest))

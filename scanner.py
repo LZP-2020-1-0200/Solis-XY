@@ -90,20 +90,12 @@ def main():
                 logger.error("No scanning points loaded or submitted")
                 continue
 
-            if not mover.port_is_open():
-                logger.error("Cannot go: Microscope is not connected")
-                continue
-
             mover.set_coordinates(scanner.all_scanner_points[0])
 
         if event == "-STARTSCAN-":
 
             if not scanner.all_scanner_points:
                 logger.error("No scanning points loaded")
-                continue
-
-            if not mover.port_is_open():
-                logger.error("Cannot start scanning: Microscope is not connected")
                 continue
 
             scans_per_point = str_to_int(values["-NUMOFSCANS-"])

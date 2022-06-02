@@ -40,13 +40,15 @@ def main():
         event, values = window.read()
 
         if event == sg.WIN_CLOSED:
+            
+            mover.close_connection() if microscope_connected else None
             break
 
         if event == "-REFRESHCOMPORTS-":
             window["-COM_PORT_CHOOSER-"].Update(values=btn.get_available_com_ports())
 
         if event == "-CONNECT-":
-            port_description = values["-COM_PORT_CHOOSER-"]
+            port_description: str = values["-COM_PORT_CHOOSER-"]
             com_port = btn.get_com_port_from_desc(port_description)
 
             microscope_connected = mover.connect(com_port)

@@ -4,10 +4,12 @@ import logging
 import PySimpleGUI as sg
 from classes.microscope_mover import mover
 from gui.helpers import disable_element
-from scanner import main as scanner_main
-from position import main as position_main
 from gui.buttons import get_available_com_ports
 import gui.buttons as btn
+
+from scanner import main as scanner_main
+from position import main as position_main
+from scanning_points import main as points_main
 
 
 logger = logging.getLogger(__name__)
@@ -24,7 +26,11 @@ def main():
             sg.B("Refresh", key="-REFRESHCOMPORTS-"),
             sg.B("Connect", key="-CONNECT-"),
         ],
-        [sg.B("Point Converter", key="-CONVERTER-", expand_x=True), sg.B("Scanner", key="-SCANNER-", expand_x=True)],
+        [
+            sg.B("Corners", key="-CONVERTER-", expand_x=True),
+            sg.B("Scanning Points", key="-SCANPOINTS-", expand_x=True),
+            sg.B("Scanner", key="-SCANNER-", expand_x=True),
+        ],
     ]
     window = sg.Window("Solis-XY", layout=layout, finalize=True, font=("Verdana", "12"))
 
@@ -67,6 +73,14 @@ def main():
                 continue
 
             position_main()
+
+        if event == "-SCANPOINTS-":
+
+            if not microscope_connected:
+                logger.error("Choose COM port first!")
+                continue
+
+            points_main()
 
 
 if __name__ == "__main__":

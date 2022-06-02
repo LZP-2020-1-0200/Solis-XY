@@ -3,15 +3,8 @@ import PySimpleGUI as sg
 
 def step3_layout():
     step3_layout = [
-        [sg.B("Add point", key="-ADDPOINTOFINT-"), sg.B("Remove last point", key="-REMOVELAST-")],
-        [sg.T("Current point count:"), sg.T("0", key="-CURRENTPOINTCOUNT-")],
-        [
-            sg.T("Number of scans per two points: "),
-            sg.I("", key="-NUMBER_OF_SCANS-", s=(9, 2), enable_events=1, justification="c"),
-            sg.B("Submit", key="-SUMBMISCANNO-"),
-        ],
+        [sg.B("Load points", key="-LOADSCANPOINTS-")],
         [sg.T("Total scanning point count:"), sg.T("0", key="-POINTCOUNT-")],
-        [sg.B("Save points", key="-SAVESCANPOINTS-"), sg.B("Load points", key="-LOADSCANPOINTS-")],
         [sg.B("Go to First Point", key="-GOFIRSTPOINT-")],
         [sg.T("Scans per point: "), sg.I("1", s=(3, 1), justification="c", key="-NUMOFSCANS-")],
         [sg.T("Total integration time (Seconds): "), sg.I("10", key="-INTEGRATIONTIME-", s=(5, 2), justification="c")],

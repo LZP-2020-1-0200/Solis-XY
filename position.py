@@ -12,6 +12,8 @@ from gui.helpers import str_to_int, get_load_path, get_save_path
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
 
+CORNER_COUNT = 3
+
 
 def main():
     gui = PositionGUI()
@@ -50,7 +52,7 @@ def main():
         if event == "-STEP1SUBMIT-":
             error_in_validation = False
 
-            for i in range(1, 3):
+            for i in range(1, CORNER_COUNT + 1):
                 x = values[f"-S1CORNER{i}_X-"]
                 y = values[f"-S1CORNER{i}_Y-"]
 
@@ -72,7 +74,11 @@ def main():
             if not save_path:
                 continue
 
-            points_for_save = [points["s1point1"], points["s1point2"]]
+            points_for_save = []
+            for key in points:
+                if "s1point" in key:
+                    points_for_save.append(points[key])
+
             save_all_points_to_file(points_for_save, save_path)
 
             disable_step_elements(window, step=1)
@@ -85,8 +91,8 @@ def main():
 
             coordinates = read_all_points_from_file(load_path)
 
-            if len(coordinates) != 2:
-                logger.error(f"Wrong file, too much/little points ({len(coordinates)}), Expected: 2")
+            if len(coordinates) != CORNER_COUNT:
+                logger.error(f"Wrong file, too much/little points ({len(coordinates)}), Expected: {CORNER_COUNT}")
                 continue
 
             for i, coord in enumerate(coordinates):
@@ -100,7 +106,7 @@ def main():
         if event == "-STEP2SUBMIT-":
             error_in_validation = False
 
-            for i in range(1, 3):
+            for i in range(1, CORNER_COUNT + 1):
                 x = values[f"-S2CORNER{i}_X-"]
                 y = values[f"-S2CORNER{i}_Y-"]
 
@@ -121,11 +127,16 @@ def main():
             if not save_path:
                 continue
 
-            points_for_save = [points["s2point1"], points["s2point2"]]
+            points_for_save = []
+            for key in points:
+                if "s2point" in key:
+                    points_for_save.append(points[key])
+
             save_all_points_to_file(points_for_save, save_path)
 
             disable_step_elements(window, step=2)
 
+        # TODO Rewrite this
         if event == "-CONVERTPOINTS-":
 
             if "s1point1" not in points or "s1point2" not in points:
@@ -153,11 +164,16 @@ def main():
 
         if event == "-SAMEVALUES-":
 
-            if "s1point1" not in points or "s1point2" not in points:
+            counter = 0
+            for key in points:
+                if "s1point" in key:
+                    counter += 1
+
+            if counter != CORNER_COUNT:
                 logger.error("One of the initial points is missing")
                 continue
 
-            for i in range(1, 3):
+            for i in range(1, CORNER_COUNT + 1):
                 points[f"s2point{i}"] = points[f"s1point{i}"]
                 input_x = window[f"-S2CORNER{i}_X-"]
                 input_y = window[f"-S2CORNER{i}_Y-"]

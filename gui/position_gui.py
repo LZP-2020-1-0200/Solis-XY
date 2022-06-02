@@ -8,8 +8,11 @@ def disable_step_elements(window: sg.Window, step: int):
     disable_element(window, f"-S{step}CORNER1_Y-")
     disable_element(window, f"-S{step}CORNER2_X-")
     disable_element(window, f"-S{step}CORNER2_Y-")
+    disable_element(window, f"-S{step}CORNER3_X-")
+    disable_element(window, f"-S{step}CORNER3_Y-")
     disable_element(window, f"-S{step}READ_COORD1-")
     disable_element(window, f"-S{step}READ_COORD2-")
+    disable_element(window, f"-S{step}READ_COORD3-")
     disable_element(window, f"-STEP{step}SUBMIT-")
 
     if step == 1:
@@ -38,6 +41,15 @@ def step1_layout():
             sg.B("Read", key="-S1READ_COORD2-"),
             sg.B("Go here", key="-S1GOTOCORD2-"),
         ],
+        [
+            sg.T("Corner 3", s=(11, 1)),
+            sg.T("X:"),
+            sg.I("", key="-S1CORNER3_X-", s=(10, 2)),
+            sg.T("Y:"),
+            sg.I("", key="-S1CORNER3_Y-", s=(10, 2)),
+            sg.B("Read", key="-S1READ_COORD3-"),
+            sg.B("Go here", key="-S1GOTOCORD3-"),
+        ],
         [sg.B("Save Coordinates", key="-STEP1SUBMIT-"), sg.B("Load Coordinates", key="-STEP1LOAD-")],
     ]
 
@@ -64,6 +76,15 @@ def step2_layout():
             sg.I("", key="-S2CORNER2_Y-", s=(10, 2)),
             sg.B("Read", key="-S2READ_COORD2-"),
             sg.B("Go here", key="-S2GOTOCORD2-"),
+        ],
+        [
+            sg.T("Corner 3", s=(11, 1)),
+            sg.T("X:"),
+            sg.I("", key="-S2CORNER3_X-", s=(10, 2)),
+            sg.T("Y:"),
+            sg.I("", key="-S2CORNER3_Y-", s=(10, 2)),
+            sg.B("Read", key="-S2READ_COORD3-"),
+            sg.B("Go here", key="-S2GOTOCORD3-"),
         ],
         [
             sg.B("Save Coordinates", key="-STEP2SUBMIT-"),

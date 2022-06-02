@@ -22,10 +22,10 @@ paused = False
 stopped = False
 
 
-def construct_number_with_padding(number: int):
-    number_as_str = str(number)
-    digit_count = len(number_as_str)
-    return f"{'0'*(PADDING - digit_count)}{number_as_str}"
+def construct_number_with_padding(point_number: int, line_number: int):
+    digit_count_point = len(str(point_number))
+    digit_count_line = len(str(line_number))
+    return f"P{'0'*(PADDING - digit_count_point)}{point_number}x{'0'*(PADDING - digit_count_line)}{line_number}"
 
 
 def start_scanning(
@@ -33,20 +33,28 @@ def start_scanning(
 ):
     global paused, stopped
     logger.info("Started scanning sequence")
-    for i, point in enumerate(scanner.all_scanner_points):
-        point_nr = construct_number_with_padding(i + 1)
+
+    previous_x = -999999
+    line_number = 0
+    i = 1
+    for point in scanner.all_scanner_points:
+
+        if point.x > previous_x:
+            previous_x = point.x
+            line_number += 1
+            i = 1
+
+        point_nr = construct_number_with_padding(i, line_number)
         scanner.next_scan()
         mover.set_coordinates(point)
-        for j in range(point_scans):
 
-            while paused:
-                time.sleep(0.5)
-            if stopped:
-                return
+        while paused:
+            time.sleep(0.5)
+        if stopped:
+            return
 
-            solis.capture_and_save(
-                filename=f"P{point_nr}_{j+1}", integr_time=integr_time, first_time=i == 0 and j == 0
-            )
+        solis.capture_and_save(filename=point_nr, integr_time=integr_time, first_time=i == 1 and line_number == 1)
+        i += 1
 
     logger.info("Successfully ended scanning sequence")
 

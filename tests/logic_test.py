@@ -6,25 +6,18 @@ class LogicTest(unittest.TestCase):
     
     
     def test_construct_filename_9(self):
-        self.assertEqual(construct_number_with_padding(9), "0000009")
+        self.assertEqual(construct_number_with_padding(9,1), "P0009x0001")
         
     def test_construct_filename_99(self):
-        self.assertEqual(construct_number_with_padding(99), "0000099")
+        self.assertEqual(construct_number_with_padding(99,5), "P0099x0005")
         
     def test_construct_filename_999(self):
-        self.assertEqual(construct_number_with_padding(999), "0000999")
+        self.assertEqual(construct_number_with_padding(999,421), "P0999x0421")
         
     def test_construct_filename_9999(self):
-        self.assertEqual(construct_number_with_padding(9999), "0009999")
+        self.assertEqual(construct_number_with_padding(9999,9999), "P9999x9999")
         
-    def test_construct_filename_99999(self):
-        self.assertEqual(construct_number_with_padding(99999), "0099999")
-        
-    def test_construct_filename_999999(self):
-        self.assertEqual(construct_number_with_padding(999999), "0999999")
-        
-    def test_construct_filename_9999999(self):
-        self.assertEqual(construct_number_with_padding(9999999), "9999999")
+
 
 
 if __name__ == '__main__':

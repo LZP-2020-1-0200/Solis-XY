@@ -49,7 +49,7 @@ class Automatization:
         else:
             keyboard.send_keys(ENTER)
         # TODO test this
-        logger.info(f"Spectra nr. {filename[:8]}. saved")
+        logger.info(f"Spectra nr. {filename[:10]} saved")
 
     def close_saved_spectra(self):
         self.main_dlg.set_focus()

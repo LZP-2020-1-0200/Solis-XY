@@ -1,18 +1,15 @@
 import PySimpleGUI as sg
 from gui.helpers import disable_element
 
+CORNER_COUNT = 2
+
 
 def disable_step_elements(window: sg.Window, step: int):
 
-    disable_element(window, f"-S{step}CORNER1_X-")
-    disable_element(window, f"-S{step}CORNER1_Y-")
-    disable_element(window, f"-S{step}CORNER2_X-")
-    disable_element(window, f"-S{step}CORNER2_Y-")
-    disable_element(window, f"-S{step}CORNER3_X-")
-    disable_element(window, f"-S{step}CORNER3_Y-")
-    disable_element(window, f"-S{step}READ_COORD1-")
-    disable_element(window, f"-S{step}READ_COORD2-")
-    disable_element(window, f"-S{step}READ_COORD3-")
+    for i in range(1, CORNER_COUNT + 1):
+        disable_element(window, f"-S{step}CORNER{i}_X-")
+        disable_element(window, f"-S{step}CORNER{i}_Y-")
+        disable_element(window, f"-S{step}READ_COORD{i}-")
     disable_element(window, f"-STEP{step}SUBMIT-")
 
     if step == 1:
@@ -22,77 +19,49 @@ def disable_step_elements(window: sg.Window, step: int):
 
 
 def step1_layout():
-    step1_layout = [
-        [
-            sg.T("Corner 1", s=(11, 1)),
+    layout = []
+    for i in range(1, CORNER_COUNT + 1):
+        input_row = [
+            sg.T(f"Corner {i}", s=(11, 1)),
             sg.T("X:"),
-            sg.I("", key="-S1CORNER1_X-", s=(10, 2)),
+            sg.I("", key=f"-S1CORNER{i}_X-", s=(10, 2)),
             sg.T("Y:"),
-            sg.I("", key="-S1CORNER1_Y-", s=(10, 2)),
-            sg.B("Read", key="-S1READ_COORD1-"),
-            sg.B("Go here", key="-S1GOTOCORD1-"),
-        ],
-        [
-            sg.T("Corner 2", s=(11, 1)),
-            sg.T("X:"),
-            sg.I("", key="-S1CORNER2_X-", s=(10, 2)),
-            sg.T("Y:"),
-            sg.I("", key="-S1CORNER2_Y-", s=(10, 2)),
-            sg.B("Read", key="-S1READ_COORD2-"),
-            sg.B("Go here", key="-S1GOTOCORD2-"),
-        ],
-        [
-            sg.T("Corner 3", s=(11, 1)),
-            sg.T("X:"),
-            sg.I("", key="-S1CORNER3_X-", s=(10, 2)),
-            sg.T("Y:"),
-            sg.I("", key="-S1CORNER3_Y-", s=(10, 2)),
-            sg.B("Read", key="-S1READ_COORD3-"),
-            sg.B("Go here", key="-S1GOTOCORD3-"),
-        ],
-        [sg.B("Save Coordinates", key="-STEP1SUBMIT-"), sg.B("Load Coordinates", key="-STEP1LOAD-")],
-    ]
+            sg.I("", key=f"-S1CORNER{i}_Y-", s=(10, 2)),
+            sg.B("Read", key=f"-S1READ_COORD{i}-"),
+            sg.B("Go here", key=f"-S1GOTOCORD{i}-"),
+        ]
+        layout.append(input_row)
 
-    step1 = sg.Frame(layout=step1_layout, title="Initial position")
+    save_layout = [sg.B("Save Coordinates", key="-STEP1SUBMIT-"), sg.B("Load Coordinates", key="-STEP1LOAD-")]
+
+    layout.append(save_layout)
+
+    step1 = sg.Frame(layout=layout, title="Initial position")
     return step1
 
 
 def step2_layout():
-    step2_layout = [
-        [
-            sg.T("Corner 1", s=(11, 1)),
+    layout = []
+    for i in range(1, CORNER_COUNT + 1):
+        input_row = [
+            sg.T(f"Corner {i}", s=(11, 1)),
             sg.T("X:"),
-            sg.I("", key="-S2CORNER1_X-", s=(10, 2)),
+            sg.I("", key=f"-S2CORNER{i}_X-", s=(10, 2)),
             sg.T("Y:"),
-            sg.I("", key="-S2CORNER1_Y-", s=(10, 2)),
-            sg.B("Read", key="-S2READ_COORD1-"),
-            sg.B("Go here", key="-S2GOTOCORD1-"),
-        ],
-        [
-            sg.T("Corner 2", s=(11, 1)),
-            sg.T("X:"),
-            sg.I("", key="-S2CORNER2_X-", s=(10, 2)),
-            sg.T("Y:"),
-            sg.I("", key="-S2CORNER2_Y-", s=(10, 2)),
-            sg.B("Read", key="-S2READ_COORD2-"),
-            sg.B("Go here", key="-S2GOTOCORD2-"),
-        ],
-        [
-            sg.T("Corner 3", s=(11, 1)),
-            sg.T("X:"),
-            sg.I("", key="-S2CORNER3_X-", s=(10, 2)),
-            sg.T("Y:"),
-            sg.I("", key="-S2CORNER3_Y-", s=(10, 2)),
-            sg.B("Read", key="-S2READ_COORD3-"),
-            sg.B("Go here", key="-S2GOTOCORD3-"),
-        ],
-        [
-            sg.B("Save Coordinates", key="-STEP2SUBMIT-"),
-            sg.B("Convert points", key="-CONVERTPOINTS-"),
-            sg.B("Fill with same values", key="-SAMEVALUES-"),
-        ],
+            sg.I("", key=f"-S2CORNER{i}_Y-", s=(10, 2)),
+            sg.B("Read", key=f"-S2READ_COORD{i}-"),
+            sg.B("Go here", key=f"-S2GOTOCORD{i}-"),
+        ]
+        layout.append(input_row)
+
+    save_layout = [
+        sg.B("Save Coordinates", key="-STEP2SUBMIT-"),
+        sg.B("Convert points", key="-CONVERTPOINTS-"),
+        sg.B("Fill with same values", key="-SAMEVALUES-"),
     ]
-    step2 = sg.Frame(layout=step2_layout, title="New position")
+
+    layout.append(save_layout)
+    step2 = sg.Frame(layout=layout, title="New position")
     return step2
 
 

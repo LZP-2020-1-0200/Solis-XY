@@ -5,14 +5,12 @@ import PySimpleGUI as sg
 from classes.coordinate import Coordinate, get_new_points, read_all_points_from_file, save_all_points_to_file
 from classes.microscope_mover import mover
 from classes.scanner import Scanner
-from gui.position_gui import PositionGUI, disable_step_elements
+from gui.position_gui import PositionGUI, disable_step_elements, CORNER_COUNT
 import gui.buttons as btn
 from gui.helpers import str_to_int, get_load_path, get_save_path
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
-
-CORNER_COUNT = 3
 
 
 def main():
@@ -136,15 +134,23 @@ def main():
 
             disable_step_elements(window, step=2)
 
-        # TODO Rewrite this
         if event == "-CONVERTPOINTS-":
 
-            if "s1point1" not in points or "s1point2" not in points:
-                logger.error("One of the initial points is missing")
-                continue
+            error_in_validation = False
 
-            if "s2point1" not in points or "s2point2" not in points:
-                logger.error("One of the new points is missing")
+            for i in range(1, CORNER_COUNT + 1):
+                if f"s1point{i}" not in points:
+                    logger.error(f"{i}. initial corner is missing")
+                    error_in_validation = True
+                    break
+
+            for i in range(1, CORNER_COUNT + 1):
+                if f"s2point{i}" not in points:
+                    logger.error(f"{i}. new corner is missing")
+                    error_in_validation = True
+                    break
+
+            if error_in_validation:
                 continue
 
             points_load_path = get_load_path()
@@ -164,13 +170,15 @@ def main():
 
         if event == "-SAMEVALUES-":
 
-            counter = 0
-            for key in points:
-                if "s1point" in key:
-                    counter += 1
+            error_in_validation = False
 
-            if counter != CORNER_COUNT:
-                logger.error("One of the initial points is missing")
+            for i in range(1, CORNER_COUNT + 1):
+                if f"s1point{i}" not in points:
+                    logger.error(f"{i}. initial corner is missing")
+                    error_in_validation = True
+                    break
+
+            if error_in_validation:
                 continue
 
             for i in range(1, CORNER_COUNT + 1):

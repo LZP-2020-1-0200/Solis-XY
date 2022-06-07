@@ -34,17 +34,32 @@ def start_scanning(
     global paused, stopped
     logger.info("Started scanning sequence")
 
-    previous_x = -999999
     line_number = 0
-    i = 1
+    point_number = 1
+    previous_x = 0
+    one_point = True
+
+    if len(scanner.all_scanner_points) >= 2:
+        step = scanner.all_scanner_points[1] - scanner.all_scanner_points[0]
+        one_point = False
+        previous_x = 99999999 if step.x > 0 else -99999999
+
     for point in scanner.all_scanner_points:
 
-        if point.x > previous_x:
-            previous_x = point.x
-            line_number += 1
-            i = 1
+        if not one_point:
 
-        point_nr = construct_number_with_padding(i, line_number)
+            if step.x <= 0:
+                if point.x > previous_x:
+                    line_number += 1
+                    point_number = 1
+            else:
+                if point.x < previous_x:
+                    line_number += 1
+                    point_number = 1
+
+            previous_x = point.x
+
+        point_nr = construct_number_with_padding(point_number, line_number)
         scanner.next_scan()
         mover.set_coordinates(point)
 
@@ -53,8 +68,11 @@ def start_scanning(
         if stopped:
             return
 
+        time.sleep(0.5)
+
         solis.capture_and_save(filename=point_nr, integr_time=integr_time, first_time=i == 1 and line_number == 1)
-        i += 1
+        print(f"{point_nr}")
+        point_number += 1
 
     logger.info("Successfully ended scanning sequence")
 

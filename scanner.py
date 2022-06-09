@@ -20,6 +20,7 @@ coloredlogs.install(level="INFO")
 
 paused = False
 stopped = False
+current_point_nr = 1
 
 
 def construct_number_with_padding(point_number: int, line_number: int):
@@ -29,7 +30,7 @@ def construct_number_with_padding(point_number: int, line_number: int):
 
 
 def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatization, integr_time: int):
-    global paused, stopped
+    global paused, stopped, current_point_nr
     logger.info("Started scanning sequence")
 
     line_number = 0
@@ -43,7 +44,7 @@ def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatizati
         previous_x = 99999999 if step.x > 0 else -99999999
 
     for i, point in enumerate(scanner.all_scanner_points):
-
+        current_point_nr = i + 1
         if not one_point:
 
             if step.x < 0 and point.x > previous_x:
@@ -69,10 +70,11 @@ def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatizati
         point_number += 1
 
     logger.info("Successfully ended scanning sequence")
+    stopped, paused = False, False
 
 
 def main():
-    global paused, stopped
+    global paused, stopped, current_point_nr
 
     solis = Automatization("Andor SOLIS for Spectroscopy: *")
 
@@ -83,8 +85,20 @@ def main():
     scanner = Scanner()
     window = gui.window
 
+    started = False
+
     while 1:
-        event, values = window.read()
+        event, values = window.read(timeout=1000)
+
+        if started:
+            sg.one_line_progress_meter(
+                "Progress bar",
+                current_point_nr,
+                len(scanner.all_scanner_points),
+                orientation="h",
+                keep_on_top=True,
+                no_button=True,
+            )
 
         if event == sg.WIN_CLOSED:
             break
@@ -100,8 +114,6 @@ def main():
                 continue
 
             window["-POINTCOUNT-"].update(scanner.all_point_count)
-            disable_element(window, "-LOADSCANPOINTS-")
-
             stopped, paused = False, False
 
         if event == "-GOFIRSTPOINT-":
@@ -124,9 +136,17 @@ def main():
                 logger.error("Negative total integration time")
                 continue
 
-            window.perform_long_operation(lambda: start_scanning(scanner, mover, solis, integration_time), "-SCANEND-")
+            started = True
 
+            window.perform_long_operation(lambda: start_scanning(scanner, mover, solis, integration_time), "-ENDSCAN-")
             disable_element(window, "-STARTSCAN-")
+
+        if event == "-ENDSCAN-":
+            started = False
+            message = "Scanned stopped by user" if stopped else "Scanning successfully ended"
+            color = "red" if stopped else "green"
+            sg.one_line_progress_meter_cancel()
+            sg.popup_ok(message, keep_on_top=True, background_color=color)
 
         if len(event) == 1 and ord(event) in P_LETTER:
             paused = True if not paused else False

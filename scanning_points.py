@@ -1,6 +1,7 @@
 import coloredlogs
 import logging
 import PySimpleGUI as sg
+from pathlib import Path
 
 from classes.coordinate import Coordinate
 from classes.microscope_mover import mover
@@ -91,7 +92,7 @@ def main():
             logger.info("Points submitted successfully")
 
         if event == "-SAVESCANPOINTS-":
-
+            
             if not scanner.all_scanner_points:
                 logger.error("No points for saving !")
                 continue
@@ -100,6 +101,12 @@ def main():
 
             if not points_save_path:
                 continue
+            
+            with open(Path(points_save_path).parent / "log.txt", "a") as file:
+                file.write(f"Start point: {points_of_interest[0]}\n")
+                file.write(f"End point: {points_of_interest[-1]}\n")
+                file.write(f"Number of points per line: {point_count}\n")
+                file.write(f"Number of lines: {number_of_lines}\n")
 
             scanner.save_coordinate(points_save_path)
 

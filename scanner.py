@@ -28,9 +28,7 @@ def construct_number_with_padding(point_number: int, line_number: int):
     return f"P{'0'*(PADDING - digit_count_point)}{point_number}x{'0'*(PADDING - digit_count_line)}{line_number}"
 
 
-def start_scanning(
-    scanner: Scanner, mover: MicroscopeMover, solis: Automatization, point_scans: int, integr_time: int
-):
+def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatization, integr_time: int):
     global paused, stopped
     logger.info("Started scanning sequence")
 
@@ -48,30 +46,28 @@ def start_scanning(
 
         if not one_point:
 
-            if step.x <= 0:
-                if point.x > previous_x:
-                    line_number += 1
-                    point_number = 1
-            else:
-                if point.x < previous_x:
-                    line_number += 1
-                    point_number = 1
+            if step.x < 0 and point.x > previous_x:
+                line_number += 1
+                point_number = 1
+            elif step.x > 0 and point.x < previous_x:
+                line_number += 1
+                point_number = 1
 
             previous_x = point.x
 
-        point_nr = construct_number_with_padding(point_number, line_number)
+        point_filename = construct_number_with_padding(point_number, line_number)
         scanner.next_scan()
         mover.set_coordinates(point)
 
         while paused:
             time.sleep(0.5)
+
         if stopped:
             return
 
-        time.sleep(0.5)
-
-        solis.capture_and_save(filename=point_nr, integr_time=integr_time, first_time=i == 1 and line_number == 1)
-        print(f"{point_nr}")
+        solis.capture_and_save(
+            filename=point_filename, integr_time=integr_time, first_time=point_number == 1 and line_number == 1
+        )
         point_number += 1
 
     logger.info("Successfully ended scanning sequence")
@@ -113,7 +109,7 @@ def main():
         if event == "-GOFIRSTPOINT-":
 
             if not scanner.all_scanner_points:
-                logger.error("No scanning points loaded or submitted")
+                logger.error("No scanning points loaded")
                 continue
 
             mover.set_coordinates(scanner.all_scanner_points[0])
@@ -124,25 +120,15 @@ def main():
                 logger.error("No scanning points loaded")
                 continue
 
-            scans_per_point = str_to_int(values["-NUMOFSCANS-"])
-
-            if scans_per_point <= 0:
-                logger.error("Negative number of scans")
-                continue
-
             integration_time = str_to_int(values["-INTEGRATIONTIME-"])
 
             if integration_time <= 0:
                 logger.error("Negative total integration time")
                 continue
 
-            window.perform_long_operation(
-                lambda: start_scanning(scanner, mover, solis, scans_per_point, integration_time), "-SCANEND-"
-            )
+            window.perform_long_operation(lambda: start_scanning(scanner, mover, solis, integration_time), "-SCANEND-")
 
-            disable_element(window, "-NUMOFSCANS-")
             disable_element(window, "-STARTSCAN-")
-            disable_element(window, "-GOFIRSTPOINT-")
 
         if len(event) == 1 and ord(event) in P_LETTER:
             paused = True if not paused else False

@@ -42,7 +42,7 @@ def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatizati
         one_point = False
         previous_x = 99999999 if step.x > 0 else -99999999
 
-    for point in scanner.all_scanner_points:
+    for i, point in enumerate(scanner.all_scanner_points):
 
         if not one_point:
 
@@ -65,9 +65,7 @@ def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatizati
         if stopped:
             return
 
-        solis.capture_and_save(
-            filename=point_filename, integr_time=integr_time, first_time=point_number == 1 and line_number == 1
-        )
+        solis.capture_and_save(filename=point_filename, integr_time=integr_time, first_time=i == 0)
         point_number += 1
 
     logger.info("Successfully ended scanning sequence")

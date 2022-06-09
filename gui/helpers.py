@@ -30,3 +30,7 @@ def get_load_path():
 
 def disable_element(window: sg.Window, key: str):
     window[key].update(disabled=True)
+
+
+def enable_element(window: sg.Window, key: str):
+    window[key].update(disabled=False)

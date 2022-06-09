@@ -9,6 +9,8 @@ def step3_layout():
         [sg.T("Total integration time (Seconds): "), sg.I("10", key="-INTEGRATIONTIME-", s=(5, 2), justification="c")],
         [
             sg.B("Start Scanning", key="-STARTSCAN-"),
+            sg.B("Pause", key="-PAUSE-", disabled=True),
+            sg.B("Stop", key="-STOP-", disabled=True),
         ],
     ]
 

@@ -7,7 +7,7 @@ from classes.microscope_mover import MicroscopeMover, mover
 from classes.scanner import Scanner
 from classes.solis import Automatization
 from gui.scanner_gui import AutomatizationGUI
-from gui.helpers import get_load_path, str_to_int, disable_element
+from gui.helpers import enable_element, get_load_path, str_to_int, disable_element
 
 PADDING = 4
 
@@ -44,6 +44,13 @@ def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatizati
         previous_x = 99999999 if step.x > 0 else -99999999
 
     for i, point in enumerate(scanner.all_scanner_points):
+
+        while paused:
+            time.sleep(0.5)
+
+        if stopped:
+            return
+
         current_point_nr = i + 1
         if not one_point:
 
@@ -59,12 +66,6 @@ def start_scanning(scanner: Scanner, mover: MicroscopeMover, solis: Automatizati
         point_filename = construct_number_with_padding(point_number, line_number)
         scanner.next_scan()
         mover.set_coordinates(point)
-
-        while paused:
-            time.sleep(0.5)
-
-        if stopped:
-            return
 
         solis.capture_and_save(filename=point_filename, integr_time=integr_time, first_time=i == 0)
         point_number += 1
@@ -90,7 +91,7 @@ def main():
     while 1:
         event, values = window.read(timeout=1000)
 
-        if started:
+        if started and current_point_nr > 1 and not paused:
             sg.one_line_progress_meter(
                 "Progress bar",
                 current_point_nr,
@@ -125,7 +126,7 @@ def main():
             mover.set_coordinates(scanner.all_scanner_points[0])
 
         if event == "-STARTSCAN-":
-
+            stopped = False
             if not scanner.all_scanner_points:
                 logger.error("No scanning points loaded")
                 continue
@@ -140,21 +141,27 @@ def main():
 
             window.perform_long_operation(lambda: start_scanning(scanner, mover, solis, integration_time), "-ENDSCAN-")
             disable_element(window, "-STARTSCAN-")
+            enable_element(window, "-STOP-")
+            enable_element(window, "-PAUSE-")
 
         if event == "-ENDSCAN-":
             started = False
-            message = "Scanned stopped by user" if stopped else "Scanning successfully ended"
+            message = "Scanning stopped by user" if stopped else "Scanning successfully ended"
             color = "red" if stopped else "green"
             sg.one_line_progress_meter_cancel()
             sg.popup_ok(message, keep_on_top=True, background_color=color)
+            enable_element(window, "-STARTSCAN-")
+            disable_element(window, "-STOP-")
+            disable_element(window, "-PAUSE-")
 
-        if len(event) == 1 and ord(event) in P_LETTER:
+        if event == "-PAUSE-":
             paused = True if not paused else False
             logger.warning("Paused Scanning" if paused else "Continue scanning")
+            window["-PAUSE-"].update("Unpause" if paused else "Pause")
+            window["-STOP-"].update(disabled=paused)
 
-        if len(event) == 1 and ord(event) in S_LETTER:
+        if event == "-STOP-":
             stopped = True
-            logger.warning("Abort scanning")
 
 
 if __name__ == "__main__":

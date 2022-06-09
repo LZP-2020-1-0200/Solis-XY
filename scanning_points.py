@@ -6,7 +6,7 @@ from classes.coordinate import Coordinate
 from classes.microscope_mover import mover
 from classes.scanner import Scanner, get_scanning_points
 from gui.scanning_points_gui import ScannerPointsGUI
-from gui.helpers import str_to_int, get_save_path, disable_element
+from gui.helpers import str_to_int, get_save_path
 
 
 logger = logging.getLogger(__name__)
@@ -60,10 +60,10 @@ def main():
             window["-HEIGHT-"].update(f"{height.y_qm} μm")
 
         if event == "-SUMBMISCANNO-":
-            scans_count = str_to_int(values["-NUMBER_OF_SCANS-"])
+            point_count = str_to_int(values["-NUMBER_OF_SCANS-"])
 
-            if scans_count <= 0:
-                logger.error("Negative number of scans")
+            if point_count <= 0:
+                logger.error("Negative number of points")
                 continue
 
             if len(points_of_interest) < 2:
@@ -80,20 +80,15 @@ def main():
             spacing = height / (number_of_lines - 1) if number_of_lines > 1 else Coordinate(0, 0)
 
             for i in range(number_of_lines):
-                start = points_of_interest[0] + spacing * i
-                end = points_of_interest[1] + spacing * i
-                between_points = get_scanning_points(start, end, scans_count)
+                start_point = points_of_interest[0] + spacing * i
+                end_point = points_of_interest[1] + spacing * i
+                between_points = get_scanning_points(start_point, end_point, point_count)
 
                 for point in between_points:
                     scanning_points.append(point)
 
             scanner.set_points(scanning_points)
             logger.info("Points submitted successfully")
-
-            # disable_element(window, "-NUMBER_OF_SCANS-")
-            # disable_element(window, "-SUMBMISCANNO-")
-            # disable_element(window, "-ADDPOINTOFINT-")
-            # disable_element(window, "-REMOVELAST-")
 
         if event == "-SAVESCANPOINTS-":
 

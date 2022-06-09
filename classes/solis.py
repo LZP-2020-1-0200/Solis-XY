@@ -41,8 +41,8 @@ class Automatization:
     def save_spectra(self, filename: str, first_time: bool):
         self.main_dlg.set_focus()
         keyboard.send_keys(f"{CTRL}{S}")
-        sleep(0.2)
-        keyboard.send_keys(f"{filename.replace(' ',SPACE)}")
+        sleep(0.25)
+        keyboard.send_keys(f"{filename.replace(' ',SPACE)}", pause=0.07)
         if first_time:
             logger.warning("There is 45 seconds to manually save first file")
             sleep(45)

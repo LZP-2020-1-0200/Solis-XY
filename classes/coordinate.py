@@ -108,13 +108,10 @@ def save_all_points_to_file(points: list[Coordinate], path: str):
 
 
 class Coordinate:
-    def __init__(self, x: int | float, y: int | float):
+    def __init__(self, x: int | float, y: int | float, rounding=True):
 
-        x_ = round(x)
-        y_ = round(y)
-
-        self.x = x_
-        self.y = y_
+        self.x = x if not rounding else round(x)
+        self.y = y if not rounding else round(y)
 
         self.x_qm = self.x * UNIT_TO_NANOMETER / NM_TO_QM
         self.y_qm = self.y * UNIT_TO_NANOMETER / NM_TO_QM

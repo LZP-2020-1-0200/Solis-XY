@@ -1,11 +1,7 @@
-import coloredlogs
-import logging
-
 from classes.coordinate import Coordinate, read_all_points_from_file, save_all_points_to_file
+from classes.logger import Logger
 
-
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
+logger = Logger(__name__).get_logger()
 
 
 def get_scanning_points(pnt1: Coordinate, pnt2: Coordinate, num_points: int) -> list[Coordinate]:

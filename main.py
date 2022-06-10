@@ -1,19 +1,15 @@
-import coloredlogs
-import logging
-
 import PySimpleGUI as sg
-from classes.microscope_mover import mover
-from gui.helpers import disable_element
-from gui.buttons import get_available_com_ports
-import gui.buttons as btn
 
-from scanner import main as scanner_main
+import gui.buttons as btn
+from classes.logger import Logger
+from classes.microscope_mover import mover
+from gui.buttons import get_available_com_ports
+from gui.helpers import disable_element
 from position import main as position_main
+from scanner import main as scanner_main
 from scanning_points import main as points_main
 
-
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
+logger = Logger(__name__).get_logger()
 
 
 def main():
@@ -40,7 +36,7 @@ def main():
         event, values = window.read()
 
         if event == sg.WIN_CLOSED:
-            
+
             mover.close_connection() if microscope_connected else None
             break
 

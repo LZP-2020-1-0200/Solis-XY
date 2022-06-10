@@ -1,12 +1,11 @@
 from __future__ import annotations
-from math import atan2, degrees, sin, cos, radians
-import coloredlogs
-import logging
-import csv
 
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
-coloredlogs.install(level="INFO", logger=logger)
+import csv
+from math import atan2, cos, degrees, radians, sin
+
+from classes.logger import Logger
+
+logger = Logger(__name__).get_logger()
 
 
 UNIT_TO_NANOMETER = 40
@@ -95,8 +94,8 @@ def read_all_points_from_file(path_to_file: str):
 
             coordinate = Coordinate(x, y)
             list_of_coordinates.append(coordinate)
-        logger.info(f"Successfully loaded all points")
-        return list_of_coordinates
+    logger.info(f"Successfully loaded all points")
+    return list_of_coordinates
 
 
 def save_all_points_to_file(points: list[Coordinate], path: str):

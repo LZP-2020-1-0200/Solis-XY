@@ -3,7 +3,11 @@ import PySimpleGUI as sg
 
 def create_layout():
     layout = [
-        [sg.B("Add point", key="-ADDPOINTOFINT-"), sg.B("Remove last point", key="-REMOVELAST-"), sg.B("Load points", key="-LOADPOINTS-")],
+        [
+            sg.B("Add point", key="-ADDPOINTOFINT-"),
+            sg.B("Remove last point", key="-REMOVELAST-"),
+            sg.B("Load points", key="-LOADPOINTS-"),
+        ],
         [sg.T("Current point count:"), sg.T("0", key="-CURRENTPOINTCOUNT-")],
         [
             sg.B("Add height point", key="-GETHEIGHT-"),

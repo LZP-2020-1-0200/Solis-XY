@@ -1,13 +1,12 @@
-import coloredlogs
-import logging
-from pywinauto import ElementNotFoundError
-from pywinauto.application import Application
-import pywinauto.keyboard as keyboard
 from time import sleep
 
+import pywinauto.keyboard as keyboard
+from pywinauto import ElementNotFoundError
+from pywinauto.application import Application
 
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
+from classes.logger import Logger
+
+logger = Logger(__name__).get_logger()
 
 ALT = "%"
 F5 = "{F5}"
@@ -19,7 +18,7 @@ SPACE = "{VK_SPACE}"
 F = "F"
 A = "A"
 
-# TODO redo this class with using toolbar if Solis supports
+
 class Automatization:
     def __init__(self, title_regex: str) -> None:
         try:

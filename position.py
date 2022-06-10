@@ -1,16 +1,14 @@
-import coloredlogs
-import logging
 import PySimpleGUI as sg
 
+import gui.buttons as btn
 from classes.coordinate import Coordinate, get_new_points, read_all_points_from_file, save_all_points_to_file
+from classes.logger import Logger
 from classes.microscope_mover import mover
 from classes.scanner import Scanner
-from gui.position_gui import PositionGUI, disable_step_elements, CORNER_COUNT
-import gui.buttons as btn
-from gui.helpers import str_to_int, get_load_path, get_save_path
+from gui.helpers import get_load_path, get_save_path, str_to_int
+from gui.position_gui import CORNER_COUNT, PositionGUI, disable_step_elements
 
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
+logger = Logger(__name__).get_logger()
 
 
 def main():

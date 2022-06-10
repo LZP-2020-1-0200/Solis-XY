@@ -1,6 +1,6 @@
 import unittest
 
-from classes.coordinate import Coordinate, get_rotation, rotate_point, get_translation, get_new_points
+from classes.coordinate import Coordinate, get_new_points, get_rotation, get_translation, rotate_point
 
 
 class RotationTest(unittest.TestCase):

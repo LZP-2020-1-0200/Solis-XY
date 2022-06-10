@@ -1,19 +1,17 @@
-import coloredlogs
-import logging
-import PySimpleGUI as sg
 from pathlib import Path
 
+import PySimpleGUI as sg
+
 from classes.coordinate import Coordinate
+from classes.logger import Logger
 from classes.microscope_mover import mover
 from classes.scanner import Scanner, get_scanning_points
+from gui.helpers import get_save_path, str_to_int
 from gui.scanning_points_gui import ScannerPointsGUI
-from gui.helpers import str_to_int, get_save_path
+
+logger = Logger(__name__).get_logger()
 
 
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
-
-# TODO Add graphical representation
 def main():
     height = Coordinate(0, 0)
     gui = ScannerPointsGUI()
@@ -92,7 +90,7 @@ def main():
             logger.info("Points submitted successfully")
 
         if event == "-SAVESCANPOINTS-":
-            
+
             if not scanner.all_scanner_points:
                 logger.error("No points for saving !")
                 continue
@@ -101,7 +99,7 @@ def main():
 
             if not points_save_path:
                 continue
-            
+
             with open(Path(points_save_path).parent / "log.txt", "a") as file:
                 file.write(f"Start point: {points_of_interest[0]}\n")
                 file.write(f"End point: {points_of_interest[-1]}\n")

@@ -1,14 +1,12 @@
-import coloredlogs
-import logging
 import time
+
 import serial
 import serial.tools.list_ports
 
 from classes.coordinate import Coordinate
+from classes.logger import Logger
 
-
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
+logger = Logger(__name__).get_logger()
 
 BAUDRATE = 9600
 

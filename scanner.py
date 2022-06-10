@@ -1,22 +1,17 @@
-import coloredlogs
-import logging
-import PySimpleGUI as sg
 import time
 
+import PySimpleGUI as sg
+
+from classes.logger import Logger
 from classes.microscope_mover import MicroscopeMover, mover
 from classes.scanner import Scanner
 from classes.solis import Automatization
+from gui.helpers import disable_element, enable_element, get_load_path, str_to_int
 from gui.scanner_gui import AutomatizationGUI
-from gui.helpers import enable_element, get_load_path, str_to_int, disable_element
 
 PADDING = 4
 
-P_LETTER = ord("p"), ord("P")
-S_LETTER = ord("s"), ord("S")
-
-
-logger = logging.getLogger(__name__)
-coloredlogs.install(level="INFO")
+logger = Logger(__name__).get_logger()
 
 paused = False
 stopped = False

@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+
 from gui.helpers import disable_element
 
 CORNER_COUNT = 2

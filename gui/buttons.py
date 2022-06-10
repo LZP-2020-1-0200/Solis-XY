@@ -1,6 +1,6 @@
+import PySimpleGUI as sg
 import serial.tools.list_ports
 from classes.coordinate import Coordinate
-import PySimpleGUI as sg
 
 
 def get_available_com_ports() -> list[str]:
@@ -8,9 +8,9 @@ def get_available_com_ports() -> list[str]:
     return [desc for (_, desc, _) in sorted(ports)]
 
 
-def get_com_port_from_desc(com_port_desc : str):
+def get_com_port_from_desc(com_port_desc: str):
     if not com_port_desc:
-        return 
+        return
 
     ports = serial.tools.list_ports.comports()
     for port, desc, _ in ports:

@@ -1,5 +1,5 @@
-import time
 import unittest
+
 from classes.coordinate import *
 
 

@@ -17,7 +17,7 @@ def main():
         [
             sg.T("COM Port: "),
             sg.Combo(
-                [*get_available_com_ports()], key="-COM_PORT_CHOOSER-", readonly=True, s=(20, 2), font=("Verdana", "9")
+                get_available_com_ports(), key="-COM_PORT_CHOOSER-", readonly=True, s=(20, 2), font=("Verdana", "9")
             ),
             sg.B("Refresh", key="-REFRESHCOMPORTS-"),
             sg.B("Connect", key="-CONNECT-"),

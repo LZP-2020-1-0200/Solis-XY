@@ -2,11 +2,11 @@ from pathlib import Path
 
 import PySimpleGUI as sg
 
-from classes.coordinate import Coordinate
+from classes.coordinate import Coordinate, read_all_points_from_file
 from classes.logger import Logger
 from classes.microscope_mover import mover
 from classes.scanner import Scanner, get_scanning_points
-from gui.helpers import get_save_path, str_to_int
+from gui.helpers import get_load_path, get_save_path, str_to_int
 from gui.scanning_points_gui import ScannerPointsGUI
 
 logger = Logger(__name__).get_logger()
@@ -47,6 +47,20 @@ def main():
             logger.info(f"Removed point nr. {len(points_of_interest)}. with coordinates: {points_of_interest[-1]}")
             points_of_interest.pop()
             window["-CURRENTPOINTCOUNT-"].update(len(points_of_interest))
+
+        if event == "-LOADPOINTS-":
+            load_path = get_load_path()
+
+            if not load_path:
+                continue
+
+            coordinates = read_all_points_from_file(load_path)
+
+            if len(coordinates) != 2:
+                logger.error(f"Wrong file, too much/little points ({len(coordinates)}), Expected: 2")
+                continue
+
+            points_of_interest = coordinates
 
         if event == "-GETHEIGHT-":
 

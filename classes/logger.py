@@ -9,9 +9,12 @@ import coloredlogs
 class Logger:
     def __init__(self, module_name) -> None:
         self.logger = logging.getLogger(module_name)
-        self.log_path = Path(f"C://users//{getuser()}//Desktop//solis_{datetime.now().strftime('%Y-%m-%d')}.log")
 
-        fh = logging.FileHandler(str(self.log_path))
+        log_folder = Path(f"C://users//{getuser()}//Desktop//solis_xy_log")
+        log_folder.mkdir(parents=True, exist_ok=True)
+        log_path = Path(log_folder / (datetime.now().strftime("%Y%m%d_%H%M") + ".log"))
+
+        fh = logging.FileHandler(str(log_path))
         fh.setLevel(logging.INFO)
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         fh.setFormatter(formatter)

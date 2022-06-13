@@ -83,16 +83,19 @@ def main():
                 logger.error(f"At least 2 points must be chosen! Current point count: {len(points_of_interest)}")
                 continue
 
-            number_of_lines = str_to_int(values["-NUMOFLINES-"])
+            num_of_lines = str_to_int(values["-NUMOFLINES-"])
 
-            if number_of_lines <= 0:
+            if num_of_lines <= 0:
                 logger.error("Negative number of lines")
                 continue
 
             scanning_points: list[Coordinate] = []
-            spacing = height / (number_of_lines - 1) if number_of_lines > 1 else Coordinate(0, 0)
+            if num_of_lines > 1:
+                spacing = Coordinate(height.x / (num_of_lines - 1), height.y / (num_of_lines - 1), rounding=False)
+            else:
+                spacing = Coordinate(0, 0)
 
-            for i in range(number_of_lines):
+            for i in range(num_of_lines):
                 start_point = points_of_interest[0] + spacing * i
                 end_point = points_of_interest[1] + spacing * i
                 between_points = get_scanning_points(start_point, end_point, point_count)
@@ -118,7 +121,7 @@ def main():
                 file.write(f"Start point: {points_of_interest[0]}\n")
                 file.write(f"End point: {points_of_interest[-1]}\n")
                 file.write(f"Number of points per line: {point_count}\n")
-                file.write(f"Number of lines: {number_of_lines}\n")
+                file.write(f"Number of lines: {num_of_lines}\n")
 
             scanner.save_coordinate(points_save_path)
 
